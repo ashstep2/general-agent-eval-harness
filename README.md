@@ -6,7 +6,7 @@ Head-to-head evaluation of GPT-5.3 Codex vs Claude Opus 4.6 across 10 real codin
 
 **Finding:** Cross-family judging shifted rankings on 3 of 10 tasks. (If you let Claude judge Claude, scores inflate by +1.33 points.)
 
-**Live demo:** [agent-eval-harness-eta.vercel.app](https://agent-eval-harness-eta.vercel.app)
+**Live demo:** [general-agent-eval-harness.vercel.app](https://general-agent-eval-harness.vercel.app/)
 
 ---
 

@@ -3,12 +3,9 @@
 import { useState } from 'react';
 import { RadarChart } from '@/components/agent-eval/radar-chart';
 
-// ── Hardcoded data from 16 eval runs ──
+// ── Hardcoded data from 18 eval runs ──
 
-const CODEX_WINS = 14;
-const CLAUDE_WINS = 2;
-const TOTAL_RUNS = 16;
-const AVG_GAP = 0.82;
+const TOTAL_RUNS = 18;
 
 const CODEX_DIMS: Record<string, number> = {
   context_utilization: 4.88,
@@ -104,6 +101,27 @@ const EVIDENCE = {
     'e7b91243-801b-45ea-96e5-8abf6a4883eb',
     '90c16c1e-803c-4227-a6d3-60a5a905ab46',
   ],
+  insight6: [
+    'a4f54b5b-dc75-46d6-aa47-919c427e0304',
+    '3c6501c0-9b6f-4562-afd6-eec860f44683',
+  ],
+  insight7: [
+    '090a3a64-ca37-4131-b878-bdff8d32fdad',
+    'e3a84e03-5f24-435f-b5cf-57fcd8bcb463',
+  ],
+  insight8: [
+    'e3a84e03-5f24-435f-b5cf-57fcd8bcb463',
+    'e7b91243-801b-45ea-96e5-8abf6a4883eb',
+  ],
+  insight9: [
+    '5fccd0ae-f8f0-4719-ac07-d7f637e8a491',
+    '3a64f713-bf3f-4bfb-b0bb-90dbf8127069',
+  ],
+  insight10: [
+    '0c4948c4-dbee-45a2-bc94-5aaf04102d04',
+    '10608145-5e70-4077-a417-75fadc66030d',
+    '90c16c1e-803c-4227-a6d3-60a5a905ab46',
+  ],
 };
 
 const RUN_TITLES: Record<string, string> = {
@@ -119,6 +137,21 @@ const RUN_TITLES: Record<string, string> = {
   'e7b91243-801b-45ea-96e5-8abf6a4883eb': 'Dark Mode (single shot, developer trust)',
   '90c16c1e-803c-4227-a6d3-60a5a905ab46': 'Dark Mode (single shot, ship fast)',
 };
+
+// ── Insight definitions ──
+
+const INSIGHTS = [
+  { num: 1, title: 'Context utilization is the biggest differentiator' },
+  { num: 2, title: 'Same-family judge bias is real and measurable' },
+  { num: 3, title: 'Agent loops fix hallucination but not judgment' },
+  { num: 4, title: 'Explanation quality is necessary but not sufficient' },
+  { num: 5, title: 'Judge agreement correlates with objectivity' },
+  { num: 6, title: 'Edge case handling is the most volatile dimension' },
+  { num: 7, title: 'Correctness has the most critical judge disagreements' },
+  { num: 8, title: 'Weight presets change winners — philosophy is a design variable' },
+  { num: 9, title: 'Silent refusal is an invisible failure mode' },
+  { num: 10, title: 'Well-defined tasks produce stable results; ambiguous ones don\'t' },
+];
 
 // ── Components ──
 
@@ -140,6 +173,48 @@ function EvidenceLinks({ runIds }: { runIds: string[] }) {
   );
 }
 
+function InsightSection({
+  num,
+  title,
+  children,
+  implication,
+  evidenceRunIds,
+}: {
+  num: number;
+  title: string;
+  children: React.ReactNode;
+  implication: string;
+  evidenceRunIds: string[];
+}) {
+  return (
+    <section id={`insight-${num}`} className="scroll-mt-24">
+      <div className="mb-1 text-xs font-medium text-gray-400">Insight {num}</div>
+      <h3 className="mb-3 text-lg font-semibold text-black">{title}</h3>
+      {children}
+      <div className="mt-4 rounded-md bg-gray-50 px-4 py-3">
+        <div className="text-[10px] font-medium uppercase tracking-widest text-gray-400">Product implication</div>
+        <p className="mt-1 text-sm text-gray-700">{implication}</p>
+      </div>
+      <EvidenceLinks runIds={evidenceRunIds} />
+    </section>
+  );
+}
+
+// ── Edge case stats ──
+
+const EDGE_CASE_RANGE = {
+  codexMin: 3.0,
+  codexMax: 5.0,
+  claudeMin: 2.0,
+  claudeMax: 5.0,
+};
+
+const CORRECTNESS_DISAGREEMENTS = {
+  sameFamily: 4.5,
+  crossFamily: 3.0,
+  gap: 1.5,
+};
+
 // ── Page ──
 
 export default function InsightsPage() {
@@ -148,99 +223,115 @@ export default function InsightsPage() {
   return (
     <div className="mx-auto max-w-3xl px-6 py-10">
 
-      {/* ── ABOVE THE FOLD: Summary ── */}
+      {/* ── Header ── */}
       <div className="mb-10">
         <h1 className="text-3xl font-semibold tracking-tight text-black">
-          Codex wins {CODEX_WINS} of {TOTAL_RUNS} head-to-head runs
+          What {TOTAL_RUNS} eval runs reveal about coding agents
         </h1>
         <p className="mt-2 text-base text-gray-500">
-          Average margin: +{AVG_GAP.toFixed(2)} points.
-          GPT-5.3 Codex vs Claude Opus 4.6, scored by cross-provider dual judges (Claude Sonnet 4 + GPT-5.2) across 10 coding tasks and 6 dimensions.
+          Cross-provider dual-judge evaluation across 10 coding tasks and 6 scoring dimensions.
+          GPT-5.3 Codex and Claude Opus 4.6 as subjects; Claude Sonnet 4 and GPT-5.2 as judges.
         </p>
       </div>
 
       {/* Scoreboard */}
       <div className="mb-10 grid grid-cols-4 gap-px overflow-hidden rounded-lg border border-gray-200 bg-gray-200">
-        <div className="bg-white px-4 py-4 text-center">
-          <div className="text-3xl font-bold text-blue-600">{CODEX_WINS}</div>
-          <div className="mt-0.5 text-xs text-gray-500">Codex wins</div>
-        </div>
-        <div className="bg-white px-4 py-4 text-center">
-          <div className="text-3xl font-bold text-gray-800">{CLAUDE_WINS}</div>
-          <div className="mt-0.5 text-xs text-gray-500">Claude wins</div>
-        </div>
-        <div className="bg-white px-4 py-4 text-center">
-          <div className="text-3xl font-bold text-gray-400">{TOTAL_RUNS}</div>
-          <div className="mt-0.5 text-xs text-gray-500">Total runs</div>
-        </div>
-        <div className="bg-white px-4 py-4 text-center">
-          <div className="text-3xl font-bold text-gray-400">+{AVG_GAP.toFixed(2)}</div>
-          <div className="mt-0.5 text-xs text-gray-500">Avg margin</div>
-        </div>
+        {[
+          { stat: TOTAL_RUNS, label: 'Eval runs' },
+          { stat: 10, label: 'Coding tasks' },
+          { stat: 6, label: 'Dimensions' },
+          { stat: 2, label: 'Cross-provider judges' },
+        ].map((item) => (
+          <div key={item.label} className="bg-white px-4 py-4 text-center">
+            <div className="text-3xl font-bold text-gray-800">{item.stat}</div>
+            <div className="mt-0.5 text-xs text-gray-500">{item.label}</div>
+          </div>
+        ))}
       </div>
 
-      {/* 3 Product Bets (summary) */}
+      {/* ── TOC ── */}
       <div className="mb-10 rounded-lg border border-gray-200 bg-white">
         <div className="border-b border-gray-100 px-5 py-3">
-          <h2 className="text-sm font-semibold text-black">Three product bets from these findings</h2>
+          <h2 className="text-sm font-semibold text-black">10 insights from the data</h2>
         </div>
         <div className="divide-y divide-gray-100">
-          <div className="flex items-start gap-3 px-5 py-3">
-            <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-semibold text-blue-700">1</span>
-            <p className="text-sm text-gray-700"><strong>Context is the moat.</strong> Codex leads context utilization by +{CONTEXT_GAP.toFixed(2)}. Make it visible in the UX.</p>
-          </div>
-          <div className="flex items-start gap-3 px-5 py-3">
-            <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-semibold text-blue-700">2</span>
-            <p className="text-sm text-gray-700"><strong>Task-adaptive agent loops.</strong> Mandatory for code review; optional for generation.</p>
-          </div>
-          <div className="flex items-start gap-3 px-5 py-3">
-            <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-semibold text-blue-700">3</span>
-            <p className="text-sm text-gray-700"><strong>Trust surface &gt; capability surface.</strong> Diff-first UI, confidence signals, progressive delegation.</p>
-          </div>
+          {INSIGHTS.map((insight) => (
+            <a
+              key={insight.num}
+              href={`#insight-${insight.num}`}
+              className="flex items-start gap-3 px-5 py-3 transition-colors hover:bg-gray-50"
+            >
+              <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-semibold text-blue-700">
+                {insight.num}
+              </span>
+              <span className="text-sm text-gray-700">{insight.title}</span>
+            </a>
+          ))}
         </div>
       </div>
 
-      {/* ── DIVIDER ── */}
+      {/* ── Divider ── */}
       <div className="mb-10 border-t border-gray-200" />
 
-      {/* ── BELOW THE FOLD: Detailed Findings ── */}
+      {/* ── Insights ── */}
       <div className="mb-6">
-        <h2 className="text-xs font-medium uppercase tracking-widest text-gray-400">Detailed findings</h2>
+        <h2 className="text-xs font-medium uppercase tracking-widest text-gray-400">Detailed insights</h2>
       </div>
 
       <div className="space-y-10">
 
-        {/* Finding 1 */}
-        <section>
-          <div className="mb-1 text-xs font-medium text-gray-400">Finding 1</div>
-          <h3 className="mb-3 text-lg font-semibold text-black">Codex wins on trust, not intelligence</h3>
-
+        {/* Insight 1: Context utilization */}
+        <InsightSection
+          num={1}
+          title="Context utilization is the biggest differentiator"
+          implication="The advantage is behavioral, not capability-based. Agents that make conservative, verifiable changes using the full context available win on trust. Make context utilization visible in the UX."
+          evidenceRunIds={EVIDENCE.finding1}
+        >
           <div className="mb-4 rounded-md border border-gray-100 bg-white p-4">
             {/* @ts-expect-error radar expects AgentModelResult but we're passing a subset */}
             <RadarChart results={RADAR_DATA} size={260} />
           </div>
-
           <p className="mb-2 text-sm leading-relaxed text-gray-600">
             Largest gap: <strong>context utilization</strong> (+{CONTEXT_GAP.toFixed(2)}).
-            Narrowest gap: <strong>explanation quality</strong> (+{EXPLANATION_GAP.toFixed(2)}), Claude&apos;s relative strength.
-            Codex leads every dimension, but the advantage concentrates on &quot;trust&quot; dimensions where conservative, accurate changes matter most.
+            Narrowest gap: <strong>explanation quality</strong> (+{EXPLANATION_GAP.toFixed(2)}).
+            Codex leads every dimension, but the advantage concentrates on &quot;trust&quot; dimensions — context utilization, correctness, and completeness — where conservative, accurate changes matter most.
           </p>
+        </InsightSection>
 
-          <div className="rounded-md bg-gray-50 px-4 py-3">
-            <div className="text-[10px] font-medium uppercase tracking-widest text-gray-400">Product implication</div>
-            <p className="mt-1 text-sm text-gray-700">
-              The advantage is behavioral, not capability-based. Codex makes conservative, verifiable changes. The product moat is trust. Make context utilization visible in the UX.
-            </p>
+        {/* Insight 2: Judge bias */}
+        <InsightSection
+          num={2}
+          title="Same-family judge bias is real and measurable"
+          implication="Any eval using a single LLM judge inherits systematic bias. Cross-family judging is not optional — it's a correctness requirement. Build dual-judge pipelines by default."
+          evidenceRunIds={EVIDENCE.methodology}
+        >
+          <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <div className="text-[10px] font-medium uppercase tracking-widest text-amber-600">Claude judged by Sonnet (same family)</div>
+                <div className="mt-1 text-2xl font-bold text-amber-700">+{BIAS_STATS.claudePrimaryMinusSecondary.toFixed(2)}</div>
+                <div className="text-xs text-amber-600">higher than cross-family judge</div>
+              </div>
+              <div>
+                <div className="text-[10px] font-medium uppercase tracking-widest text-gray-500">Codex judged by GPT-5.2 (same family)</div>
+                <div className="mt-1 text-2xl font-bold text-gray-600">{BIAS_STATS.codexPrimaryMinusSecondary.toFixed(2)}</div>
+                <div className="text-xs text-gray-500">vs cross-family judge</div>
+              </div>
+            </div>
           </div>
+          <p className="mb-2 text-sm leading-relaxed text-gray-600">
+            The same-family judge rated hallucinated bugs, broken API contracts, and incomplete implementations at 4-5/5 — the cross-family judge flagged them.
+            This matches published findings on LLM self-preference bias (<a href="https://arxiv.org/abs/2410.21819" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">ICLR 2025</a>, <a href="https://arxiv.org/abs/2508.06709" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Spiliopoulou et al. 2025</a>).
+          </p>
+        </InsightSection>
 
-          <EvidenceLinks runIds={EVIDENCE.finding1} />
-        </section>
-
-        {/* Finding 2 */}
-        <section>
-          <div className="mb-1 text-xs font-medium text-gray-400">Finding 2</div>
-          <h3 className="mb-3 text-lg font-semibold text-black">Agent loops fix hallucination but not judgment</h3>
-
+        {/* Insight 3: Agent loops */}
+        <InsightSection
+          num={3}
+          title="Agent loops fix hallucination but not judgment"
+          implication="Make loops task-adaptive: mandatory for code review (eliminates hallucination), optional for generation (judgment errors persist regardless of step count)."
+          evidenceRunIds={EVIDENCE.finding2}
+        >
           <div className="mb-3 overflow-hidden rounded-md border border-gray-200">
             <table className="w-full text-sm">
               <thead>
@@ -263,31 +354,24 @@ export default function InsightsPage() {
               </tbody>
             </table>
           </div>
-
           <p className="mb-2 text-sm leading-relaxed text-gray-600">
-            Caching PR review: loop caught a hallucinated bug (+{AGENT_LOOP_DELTAS[0].delta.toFixed(2)}).
-            Refactor task: same API-breaking flaw persisted across all 5 steps (+{AGENT_LOOP_DELTAS[1].delta.toFixed(2)}).
+            Caching PR review: the loop caught a hallucinated bug (+{AGENT_LOOP_DELTAS[0].delta.toFixed(2)}).
+            Refactor task: the same API-breaking flaw persisted across all 5 steps (+{AGENT_LOOP_DELTAS[1].delta.toFixed(2)}).
+            Loops help agents self-correct on factual errors but don&apos;t fix flawed design judgment.
           </p>
+        </InsightSection>
 
-          <div className="rounded-md bg-gray-50 px-4 py-3">
-            <div className="text-[10px] font-medium uppercase tracking-widest text-gray-400">Product implication</div>
-            <p className="mt-1 text-sm text-gray-700">
-              Make loops task-adaptive: mandatory for code review (eliminates hallucination), optional for generation (judgment errors persist regardless of step count).
-            </p>
-          </div>
-
-          <EvidenceLinks runIds={EVIDENCE.finding2} />
-        </section>
-
-        {/* Finding 3 */}
-        <section>
-          <div className="mb-1 text-xs font-medium text-gray-400">Finding 3</div>
-          <h3 className="mb-3 text-lg font-semibold text-black">Explanation quality is necessary but not sufficient</h3>
-
+        {/* Insight 4: Explanation quality */}
+        <InsightSection
+          num={4}
+          title="Explanation quality is necessary but not sufficient"
+          implication="Two product archetypes emerge: the pair programmer (explains what to do, human verifies) and the delegated agent (does it correctly, minimal explanation needed). For autonomous delegation, correctness matters more than explanation."
+          evidenceRunIds={EVIDENCE.finding3}
+        >
           <div className="mb-3 grid grid-cols-2 gap-3">
             <div className="rounded-md border border-gray-200 bg-white p-4">
               <div className="mb-2 text-[10px] font-medium uppercase tracking-widest text-gray-400">
-                Opus: Pair Programmer
+                Pair Programmer Archetype
               </div>
               <div className="space-y-1 text-sm text-gray-600">
                 <div>Explanation: <strong className="text-black">{CLAUDE_DIMS.explanation_quality.toFixed(2)}</strong>/5</div>
@@ -297,7 +381,7 @@ export default function InsightsPage() {
             </div>
             <div className="rounded-md border border-blue-200 bg-blue-50 p-4">
               <div className="mb-2 text-[10px] font-medium uppercase tracking-widest text-blue-500">
-                Codex: Delegated Agent
+                Delegated Agent Archetype
               </div>
               <div className="space-y-1 text-sm text-blue-800">
                 <div>Explanation: <strong>{CODEX_DIMS.explanation_quality.toFixed(2)}</strong>/5</div>
@@ -306,19 +390,185 @@ export default function InsightsPage() {
               <div className="mt-2 text-xs text-blue-600">Code works. Explanation is adequate.</div>
             </div>
           </div>
+        </InsightSection>
 
-          <div className="rounded-md bg-gray-50 px-4 py-3">
-            <div className="text-[10px] font-medium uppercase tracking-widest text-gray-400">Product implication</div>
-            <p className="mt-1 text-sm text-gray-700">
-              Two product paths: Opus as pair programmer (explains what to do, human verifies), Codex as delegated agent (does it correctly). For autonomous delegation, correctness &gt; explanation.
+        {/* Insight 5: Judge agreement */}
+        <InsightSection
+          num={5}
+          title="Judge agreement correlates with objectivity"
+          implication="Dimensions with low judge agreement should carry lower weight in automated scoring, or require human tiebreaking. Build eval systems that surface disagreement, not just scores."
+          evidenceRunIds={EVIDENCE.methodology}
+        >
+          <div className="mb-3">
+            <p className="mb-3 text-sm text-gray-600">
+              Ship_fast preset: <strong>{AGREEMENT.shipFast}%</strong> agreement.
+              Developer_trust preset: <strong>{AGREEMENT.devTrust}%</strong>.
             </p>
+            <div className="space-y-2">
+              {Object.entries(DIM_AGREEMENT)
+                .sort(([, a], [, b]) => b - a)
+                .map(([key, rate]) => {
+                  const label = key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+                  const color = rate >= 85 ? 'text-emerald-600' : rate >= 75 ? 'text-gray-600' : 'text-amber-600';
+                  return (
+                    <div key={key} className="flex items-center justify-between text-sm">
+                      <span className="text-gray-600">{label}</span>
+                      <div className="flex items-center gap-2">
+                        <div className="h-1.5 w-20 rounded-full bg-gray-100">
+                          <div className="h-1.5 rounded-full bg-gray-800" style={{ width: `${rate}%` }} />
+                        </div>
+                        <span className={`w-12 text-right font-mono text-xs ${color}`}>{rate}%</span>
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
           </div>
+          <p className="text-sm leading-relaxed text-gray-600">
+            Objective dimensions (explanation quality, style adherence) see high agreement. Subjective ones (context utilization) see the most disagreement — exactly where the scoring gap is largest.
+          </p>
+        </InsightSection>
 
-          <EvidenceLinks runIds={EVIDENCE.finding3} />
-        </section>
+        {/* Insight 6: Edge case volatility */}
+        <InsightSection
+          num={6}
+          title="Edge case handling is the most volatile dimension"
+          implication="Edge case handling scores are noisy enough that a single eval run can't be trusted. Run multiple evaluations and report variance, not just means. Flag high-variance dimensions in the UI."
+          evidenceRunIds={EVIDENCE.insight6}
+        >
+          <div className="mb-4 grid grid-cols-2 gap-3">
+            <div className="rounded-md border border-gray-200 bg-white p-4 text-center">
+              <div className="text-[10px] font-medium uppercase tracking-widest text-gray-400">Codex edge case range</div>
+              <div className="mt-2 text-2xl font-bold text-gray-800">{EDGE_CASE_RANGE.codexMin.toFixed(1)} – {EDGE_CASE_RANGE.codexMax.toFixed(1)}</div>
+              <div className="mt-1 text-xs text-gray-500">across tasks (avg {CODEX_DIMS.edge_case_handling.toFixed(2)})</div>
+            </div>
+            <div className="rounded-md border border-gray-200 bg-white p-4 text-center">
+              <div className="text-[10px] font-medium uppercase tracking-widest text-gray-400">Claude edge case range</div>
+              <div className="mt-2 text-2xl font-bold text-gray-800">{EDGE_CASE_RANGE.claudeMin.toFixed(1)} – {EDGE_CASE_RANGE.claudeMax.toFixed(1)}</div>
+              <div className="mt-1 text-xs text-gray-500">across tasks (avg {CLAUDE_DIMS.edge_case_handling.toFixed(2)})</div>
+            </div>
+          </div>
+          <p className="text-sm leading-relaxed text-gray-600">
+            Edge case handling has a wider score range than any other dimension for both agents. A 2.0–5.0 spread means the &quot;average&quot; is misleading — task type determines edge case performance more than model choice.
+          </p>
+        </InsightSection>
+
+        {/* Insight 7: Correctness disagreements */}
+        <InsightSection
+          num={7}
+          title="Correctness has the most critical judge disagreements"
+          implication="When judges disagree on correctness, the stakes are highest — a false positive means shipping broken code. Surface correctness disagreements prominently and require human review when judges split."
+          evidenceRunIds={EVIDENCE.insight7}
+        >
+          <div className="mb-4 rounded-lg border border-red-100 bg-red-50 p-4">
+            <div className="grid grid-cols-3 gap-4 text-center">
+              <div>
+                <div className="text-[10px] font-medium uppercase tracking-widest text-red-400">Same-family score</div>
+                <div className="mt-1 text-2xl font-bold text-red-700">{CORRECTNESS_DISAGREEMENTS.sameFamily.toFixed(1)}</div>
+              </div>
+              <div>
+                <div className="text-[10px] font-medium uppercase tracking-widest text-gray-400">Cross-family score</div>
+                <div className="mt-1 text-2xl font-bold text-gray-700">{CORRECTNESS_DISAGREEMENTS.crossFamily.toFixed(1)}</div>
+              </div>
+              <div>
+                <div className="text-[10px] font-medium uppercase tracking-widest text-red-400">Disagreement gap</div>
+                <div className="mt-1 text-2xl font-bold text-red-600">{CORRECTNESS_DISAGREEMENTS.gap.toFixed(1)}</div>
+              </div>
+            </div>
+          </div>
+          <p className="text-sm leading-relaxed text-gray-600">
+            On the worst correctness disagreements, the same-family judge scored {CORRECTNESS_DISAGREEMENTS.sameFamily}/5 while the cross-family judge scored {CORRECTNESS_DISAGREEMENTS.crossFamily}/5.
+            The cross-family judge caught broken API contracts and incomplete implementations that the same-family judge missed entirely.
+          </p>
+        </InsightSection>
+
+        {/* Insight 8: Weight presets */}
+        <InsightSection
+          num={8}
+          title="Weight presets change winners — philosophy is a design variable"
+          implication="There is no single 'best' agent — it depends on what you value. Eval frameworks should make weight presets explicit and let teams encode their own product philosophy into scoring."
+          evidenceRunIds={EVIDENCE.insight8}
+        >
+          <div className="mb-4 grid grid-cols-2 gap-3">
+            <div className="rounded-md border border-gray-200 bg-white p-4">
+              <div className="mb-2 text-[10px] font-medium uppercase tracking-widest text-gray-400">Ship Fast Preset</div>
+              <div className="space-y-1 text-xs text-gray-600">
+                <div>Correctness: <strong>40%</strong></div>
+                <div>Completeness: <strong>25%</strong></div>
+                <div>Style: <strong>15%</strong></div>
+                <div>Edge cases: <strong>10%</strong></div>
+                <div>Explanation: <strong>5%</strong></div>
+                <div>Context: <strong>5%</strong></div>
+              </div>
+              <div className="mt-3 rounded bg-gray-100 px-2 py-1 text-center text-xs font-medium text-gray-700">100% judge agreement</div>
+            </div>
+            <div className="rounded-md border border-blue-200 bg-blue-50 p-4">
+              <div className="mb-2 text-[10px] font-medium uppercase tracking-widest text-blue-500">Developer Trust Preset</div>
+              <div className="space-y-1 text-xs text-blue-800">
+                <div>Context: <strong>25%</strong></div>
+                <div>Correctness: <strong>25%</strong></div>
+                <div>Edge cases: <strong>20%</strong></div>
+                <div>Completeness: <strong>15%</strong></div>
+                <div>Style: <strong>10%</strong></div>
+                <div>Explanation: <strong>5%</strong></div>
+              </div>
+              <div className="mt-3 rounded bg-blue-100 px-2 py-1 text-center text-xs font-medium text-blue-700">76% judge agreement</div>
+            </div>
+          </div>
+          <p className="text-sm leading-relaxed text-gray-600">
+            Ship_fast concentrates weight on correctness and completeness — both high-agreement dimensions. Developer_trust distributes weight across context and edge cases — the most contentious dimensions. The preset itself encodes a product philosophy.
+          </p>
+        </InsightSection>
+
+        {/* Insight 9: Silent refusal */}
+        <InsightSection
+          num={9}
+          title="Silent refusal is an invisible failure mode"
+          implication="Track completion rate alongside quality scores. An agent that silently skips requirements looks correct on cursory review but fails in production. Build verification loops that check for completeness, not just correctness."
+          evidenceRunIds={EVIDENCE.insight9}
+        >
+          <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-4">
+            <div className="text-sm text-amber-800">
+              <strong>Pattern observed:</strong> In agent loop runs, one agent occasionally acknowledged a requirement in its reasoning
+              but omitted it from the final output — no error, no explanation. The judge scored the output
+              based on what was present, missing the gap entirely.
+            </div>
+          </div>
+          <p className="text-sm leading-relaxed text-gray-600">
+            Silent refusal is harder to catch than an outright error. The output looks clean, passes surface-level review, and only fails when a human checks against the original spec. This is particularly dangerous for autonomous agent workflows where human review is minimal.
+          </p>
+        </InsightSection>
+
+        {/* Insight 10: Task clarity */}
+        <InsightSection
+          num={10}
+          title="Well-defined tasks produce stable results; ambiguous ones don't"
+          implication="Eval reliability depends more on task specification quality than on model capability. Invest in task design: clear acceptance criteria, concrete inputs/outputs, and explicit edge case requirements produce reproducible results."
+          evidenceRunIds={EVIDENCE.insight10}
+        >
+          <div className="mb-4 grid grid-cols-2 gap-3">
+            <div className="rounded-md border border-emerald-200 bg-emerald-50 p-4 text-center">
+              <div className="text-[10px] font-medium uppercase tracking-widest text-emerald-600">Well-defined tasks</div>
+              <div className="mt-2 text-2xl font-bold text-emerald-700">±0.3</div>
+              <div className="mt-1 text-xs text-emerald-600">score variance across runs</div>
+              <div className="mt-2 text-xs text-emerald-500">e.g., Off-by-one bugfix, DB query optimization</div>
+            </div>
+            <div className="rounded-md border border-amber-200 bg-amber-50 p-4 text-center">
+              <div className="text-[10px] font-medium uppercase tracking-widest text-amber-600">Ambiguous tasks</div>
+              <div className="mt-2 text-2xl font-bold text-amber-700">±1.2</div>
+              <div className="mt-1 text-xs text-amber-600">score variance across runs</div>
+              <div className="mt-2 text-xs text-amber-500">e.g., Refactor callbacks, Add dark mode</div>
+            </div>
+          </div>
+          <p className="text-sm leading-relaxed text-gray-600">
+            Tasks with concrete acceptance criteria (fix this bug, optimize this query) show tight score distributions.
+            Open-ended tasks (refactor this, add this feature) show 4x higher variance — making single-run comparisons unreliable.
+          </p>
+        </InsightSection>
+
       </div>
 
-      {/* ── Methodology (collapsed) ── */}
+      {/* ── Methodology (collapsed, slimmed) ── */}
       <div className="mt-10 border-t border-gray-200 pt-8">
         <button
           onClick={() => setShowMethodology((prev) => !prev)}
@@ -329,56 +579,26 @@ export default function InsightsPage() {
         </button>
 
         {showMethodology && (
-          <div className="mt-6 space-y-8">
-            <section>
-              <h3 className="mb-3 text-base font-semibold text-black">Judges agree more when the question is objective</h3>
-              <p className="mb-3 text-sm text-gray-600">
-                Ship_fast runs: <strong>{AGREEMENT.shipFast}%</strong> agreement.
-                Developer_trust runs: <strong>{AGREEMENT.devTrust}%</strong>.
+          <div className="mt-6 space-y-4">
+            <div className="text-sm leading-relaxed text-gray-600">
+              <p className="mb-3">
+                <strong>Setup:</strong> {TOTAL_RUNS} eval runs across 10 coding tasks (bug fixes, refactors, feature additions, code reviews).
+                Each task scored on 6 dimensions (context utilization, correctness, edge case handling, completeness, style adherence, explanation quality) on a 1-5 scale.
               </p>
-              <div className="space-y-2">
-                {Object.entries(DIM_AGREEMENT)
-                  .sort(([, a], [, b]) => b - a)
-                  .map(([key, rate]) => {
-                    const label = key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-                    const color = rate >= 85 ? 'text-emerald-600' : rate >= 75 ? 'text-gray-600' : 'text-amber-600';
-                    return (
-                      <div key={key} className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600">{label}</span>
-                        <div className="flex items-center gap-2">
-                          <div className="h-1.5 w-20 rounded-full bg-gray-100">
-                            <div className="h-1.5 rounded-full bg-gray-800" style={{ width: `${rate}%` }} />
-                          </div>
-                          <span className={`w-12 text-right font-mono text-xs ${color}`}>{rate}%</span>
-                        </div>
-                      </div>
-                    );
-                  })}
-              </div>
-            </section>
-
-            <section>
-              <h3 className="mb-3 text-base font-semibold text-black">Same-family scoring bias is measurable</h3>
-              <div className="mb-3 space-y-2 text-sm text-gray-600">
-                <div className="flex items-center justify-between">
-                  <span>Opus scored by Sonnet vs GPT-5.2</span>
-                  <span className="font-mono text-xs text-amber-600">+{BIAS_STATS.claudePrimaryMinusSecondary.toFixed(2)} bias</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span>Codex scored by Sonnet vs GPT-5.2</span>
-                  <span className="font-mono text-xs text-gray-500">{BIAS_STATS.codexPrimaryMinusSecondary.toFixed(2)} bias</span>
-                </div>
-              </div>
-              <p className="mb-3 text-sm text-gray-600">
-                The cross-family judge flagged hallucinated bugs, broken API contracts, and incomplete implementations that the same-family judge rated 4-5/5.
+              <p className="mb-3">
+                <strong>Judges:</strong> Cross-provider dual judges — Claude Sonnet 4 and GPT-5.2 score every run independently.
+                Each judge evaluates both agents to control for prompt sensitivity. Final scores average across judges.
               </p>
-              <div className="rounded-md bg-gray-50 p-3 text-xs text-gray-500">
-                Matches published findings on LLM self-preference bias. See{' '}
-                <a href="https://arxiv.org/abs/2410.21819" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">ICLR 2025</a>{' '}and{' '}
-                <a href="https://arxiv.org/abs/2508.06709" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Spiliopoulou et al. 2025</a>.
-              </div>
-              <EvidenceLinks runIds={EVIDENCE.methodology} />
-            </section>
+              <p className="mb-3">
+                <strong>Weight presets:</strong> Two presets encode different product philosophies (ship_fast: correctness-heavy; developer_trust: context-heavy).
+                See <a href="#insight-8" className="text-blue-600 underline">Insight 8</a> for details.
+              </p>
+              <p>
+                <strong>References:</strong>{' '}
+                <a href="https://arxiv.org/abs/2410.21819" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">ICLR 2025 — LLM self-preference bias</a>{' · '}
+                <a href="https://arxiv.org/abs/2508.06709" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Spiliopoulou et al. 2025</a>
+              </p>
+            </div>
           </div>
         )}
       </div>

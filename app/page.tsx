@@ -8,22 +8,22 @@ export default function Home() {
 
   const findings = [
     {
-      title: 'Codex wins 14 of 16, but the why matters more than the score.',
+      title: 'Context utilization is the biggest differentiator between agents.',
       description:
-        'The key product question is not just who wins, but where and why outcomes change.',
-      href: '/insights',
+        'The largest scoring gap isn\'t correctness — it\'s how well agents use the information they\'re given.',
+      href: '/insights#insight-1',
     },
     {
-      title: 'Agent loops help in some tasks, not all.',
+      title: 'Agent loops fix hallucination but not judgment.',
       description:
-        'The harness surfaces where extra reasoning steps improve outcomes and where they do not.',
-      href: '/insights',
+        'Extra reasoning steps help with some failure modes but not others. The data shows where loops help and where they don\'t.',
+      href: '/insights#insight-3',
     },
     {
-      title: 'Average Codex margin: +0.82 points.',
+      title: 'Weight presets change winners — philosophy is a design variable.',
       description:
-        'Insights page breaks down disagreement, confidence, and task-level evidence.',
-      href: '/insights',
+        'How you weight dimensions determines which agent "wins." The eval framework makes this trade-off explicit.',
+      href: '/insights#insight-8',
     },
   ];
 

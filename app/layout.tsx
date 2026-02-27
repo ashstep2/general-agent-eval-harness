@@ -4,11 +4,11 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'Coding Agent Eval Harness',
   description:
-    'Head-to-head evaluation of GPT-5.3 Codex vs Claude Opus 4.6 on 10 real coding tasks. 16 runs, 6 dimensions, cross-provider dual-judge scoring.',
+    'Head-to-head evaluations on 10 real coding tasks. 16 runs, 6 dimensions, cross-provider dual-judge scoring.',
   openGraph: {
     title: 'Coding Agent Eval Harness',
     description:
-      'Head-to-head evaluation of GPT-5.3 Codex vs Claude Opus 4.6 on 10 real coding tasks. 16 runs, 6 dimensions, cross-provider dual-judge scoring.',
+      'Head-to-head evaluations on 10 real coding tasks. 16 runs, 6 dimensions, cross-provider dual-judge scoring.',
     type: 'website',
     siteName: 'Coding Agent Eval',
   },
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Coding Agent Eval Harness',
     description:
-      'Head-to-head evaluation of GPT-5.3 Codex vs Claude Opus 4.6 on 10 real coding tasks.',
+      'Head-to-head evaluations on 10 real coding tasks.',
   },
 };
 
@@ -63,7 +63,7 @@ export default function RootLayout({
                   LinkedIn
                 </a>
                 <a
-                  href="https://github.com/ashstep2/agent-eval-harness"
+                  href="https://github.com/ashstep2/general-agent-eval-harness"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm text-gray-400 transition-colors hover:text-black"
