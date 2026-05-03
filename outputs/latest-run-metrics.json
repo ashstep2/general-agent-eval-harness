@@ -1,0 +1,145 @@
+{
+  "generatedAt": "2026-05-01T20:30:40.598Z",
+  "runCount": 29,
+  "byMode": {
+    "single_shot": 25,
+    "agent_loop": 4
+  },
+  "byPreset": {
+    "developer_trust": 26,
+    "ship_fast": 3
+  },
+  "matchups": {
+    "newFlagship": {
+      "label": "GPT-5.5 vs Claude Opus 4.7",
+      "openaiId": "gpt-5.5",
+      "anthropicId": "claude-opus-4-7",
+      "runCount": 11,
+      "openaiWins": 10,
+      "anthropicWins": 1,
+      "averageWeightedGapOpenaiMinusAnthropic": 0.4636363636363637,
+      "averageInterJudgeAgreement": 0.8712121212121212,
+      "byMode": {
+        "single_shot": 10,
+        "agent_loop": 1
+      },
+      "openaiDimensions": {
+        "correctness": 4.818181818181818,
+        "style_adherence": 4.818181818181818,
+        "context_utilization": 4.818181818181818,
+        "completeness": 4.636363636363637,
+        "explanation_quality": 4.818181818181818,
+        "edge_case_handling": 4.363636363636363
+      },
+      "anthropicDimensions": {
+        "correctness": 4.090909090909091,
+        "style_adherence": 4.181818181818182,
+        "context_utilization": 4.181818181818182,
+        "completeness": 4.2727272727272725,
+        "explanation_quality": 4.7272727272727275,
+        "edge_case_handling": 3.8181818181818183
+      },
+      "openaiSameFamilyBias": -0.6666666666666665,
+      "anthropicSameFamilyBias": 0.6363636363636364,
+      "dimensionAgreement": {
+        "openai": {
+          "correctness": 0.8181818181818182,
+          "style_adherence": 1,
+          "context_utilization": 0.6363636363636364,
+          "completeness": 0.9090909090909091,
+          "explanation_quality": 1,
+          "edge_case_handling": 0.8181818181818182
+        },
+        "anthropic": {
+          "correctness": 0.8181818181818182,
+          "style_adherence": 0.8181818181818182,
+          "context_utilization": 0.8181818181818182,
+          "completeness": 0.9090909090909091,
+          "explanation_quality": 1,
+          "edge_case_handling": 0.9090909090909091
+        }
+      },
+      "runIds": [
+        "1743d534-1de5-42c0-b880-993498d7f96a",
+        "2a187f25-b0f2-4d5f-9899-7276385a5731",
+        "5e8d448e-6306-4513-93f1-2ef77200ba2c",
+        "63f2da90-892a-409e-aa21-b04d73fb3e95",
+        "7a174fe4-0cf2-445b-bf9f-cf93ddcf0c15",
+        "9f46df61-c773-4c20-8453-77d3b352c71f",
+        "c972558e-12a9-4bdd-a32f-77d3a1eacb34",
+        "d660cf8c-3e20-476c-87fb-4cf99942b715",
+        "dd9b830e-0fe4-4d2b-9fbf-bb3ee8169e16",
+        "e90167a0-eaee-4a59-955f-2e35b9558c80",
+        "f83d0159-c241-40b4-b2fe-2ad7fafbca26"
+      ]
+    },
+    "historicalBaseline": {
+      "label": "GPT-5.3 Codex vs Claude Opus 4.6",
+      "openaiId": "gpt-5.3-codex",
+      "anthropicId": "claude-opus-4-6",
+      "runCount": 16,
+      "openaiWins": 14,
+      "anthropicWins": 2,
+      "averageWeightedGapOpenaiMinusAnthropic": 0.821875,
+      "averageInterJudgeAgreement": 0.8072916666666667,
+      "byMode": {
+        "single_shot": 13,
+        "agent_loop": 3
+      },
+      "openaiDimensions": {
+        "correctness": 4.75,
+        "style_adherence": 4.75,
+        "context_utilization": 4.875,
+        "completeness": 4.6875,
+        "explanation_quality": 4.8125,
+        "edge_case_handling": 4.25
+      },
+      "anthropicDimensions": {
+        "correctness": 3.75,
+        "style_adherence": 4,
+        "context_utilization": 3.5625,
+        "completeness": 3.8125,
+        "explanation_quality": 4.5,
+        "edge_case_handling": 3.3125
+      },
+      "openaiSameFamilyBias": -0.7083333333333333,
+      "anthropicSameFamilyBias": 0.9479166666666667,
+      "dimensionAgreement": {
+        "openai": {
+          "correctness": 0.8125,
+          "style_adherence": 0.8125,
+          "context_utilization": 0.6875,
+          "completeness": 0.875,
+          "explanation_quality": 0.9375,
+          "edge_case_handling": 0.875
+        },
+        "anthropic": {
+          "correctness": 0.8125,
+          "style_adherence": 0.875,
+          "context_utilization": 0.5625,
+          "completeness": 0.75,
+          "explanation_quality": 0.9375,
+          "edge_case_handling": 0.75
+        }
+      },
+      "runIds": [
+        "090a3a64-ca37-4131-b878-bdff8d32fdad",
+        "0c4948c4-dbee-45a2-bc94-5aaf04102d04",
+        "10608145-5e70-4077-a417-75fadc66030d",
+        "152589f0-297e-4cca-bd06-06e0aad1d25c",
+        "2d7435b3-13bf-49d1-86f1-193f14f84351",
+        "2d97e235-30dc-461c-9435-b5dba144c3aa",
+        "3a64f713-bf3f-4bfb-b0bb-90dbf8127069",
+        "3c6501c0-9b6f-4562-afd6-eec860f44683",
+        "5fccd0ae-f8f0-4719-ac07-d7f637e8a491",
+        "78158fff-1e6c-417d-91d3-4d917783c880",
+        "90c16c1e-803c-4227-a6d3-60a5a905ab46",
+        "999c3853-7613-4b00-82e1-d9910c9a1156",
+        "a4f54b5b-dc75-46d6-aa47-919c427e0304",
+        "be384f2b-4d6b-4c31-a59f-42fca2c5958a",
+        "e3a84e03-5f24-435f-b5cf-57fcd8bcb463",
+        "e7b91243-801b-45ea-96e5-8abf6a4883eb"
+      ]
+    }
+  }
+}

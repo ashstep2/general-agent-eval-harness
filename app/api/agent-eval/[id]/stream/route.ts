@@ -2,9 +2,14 @@ import { NextRequest } from 'next/server';
 import { getAgentEvaluationConfig } from '@/lib/agent-eval/config-store';
 import { getAgentTask } from '@/lib/agent-eval/tasks';
 import { runAgentEvaluation } from '@/lib/agent-eval/runner';
+import { checkRateLimit, clientKeyFromHeaders } from '@/lib/rate-limit';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
+
+// Rate limit on the streaming start. Each successful start kicks off a real
+// model run that can take minutes and cost dollars.
+const RATE_LIMIT = { max: 5, windowMs: 60_000 };
 
 export async function GET(
   request: NextRequest,
@@ -12,6 +17,21 @@ export async function GET(
 ) {
   const { id: evaluationId } = await params;
   const encoder = new TextEncoder();
+
+  const key = clientKeyFromHeaders(request.headers);
+  const limit = checkRateLimit(key, RATE_LIMIT);
+  if (!limit.allowed) {
+    return new Response(
+      JSON.stringify({ error: 'Rate limit exceeded. Try again shortly.' }),
+      {
+        status: 429,
+        headers: {
+          'Content-Type': 'application/json',
+          'Retry-After': Math.ceil(limit.retryAfterMs / 1000).toString(),
+        },
+      },
+    );
+  }
 
   let config = getAgentEvaluationConfig(evaluationId);
 

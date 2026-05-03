@@ -1,5 +1,11 @@
 'use client';
 
+import { JUDGE_MODELS } from '@/lib/agent-eval/judge-config';
+import { getModelDisplayName } from '@/lib/data/models';
+
+const PRIMARY_JUDGE_NAME = getModelDisplayName(JUDGE_MODELS.primary);
+const SECONDARY_JUDGE_NAME = getModelDisplayName(JUDGE_MODELS.secondary);
+
 interface JudgeAgreementProps {
   alignmentRate: number;
 }
@@ -24,11 +30,11 @@ export function JudgeAgreement({ alignmentRate }: JudgeAgreementProps) {
       </p>
       <div className="mt-3 space-y-1 text-xs text-gray-400">
         <div className="flex items-center justify-between">
-          <span>Claude Sonnet 4</span>
-          <span>scores OpenAI models</span>
+          <span>{PRIMARY_JUDGE_NAME}</span>
+          <span>scores OpenAI &amp; Google models</span>
         </div>
         <div className="flex items-center justify-between">
-          <span>GPT-5.2</span>
+          <span>{SECONDARY_JUDGE_NAME}</span>
           <span>scores Anthropic models</span>
         </div>
       </div>

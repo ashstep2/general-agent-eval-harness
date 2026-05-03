@@ -12,12 +12,14 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
-    "openai": "^4.77.0",
-    "zustand": "^5.0.2",
+    "@google/generative-ai": "^0.24.0",
+    "@vercel/blob": "^2.3.3",
     "next": "14.2.21",
+    "openai": "^4.77.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "uuid": "^11.0.4"
+    "uuid": "^11.0.4",
+    "zustand": "^5.0.2"
   },
   "devDependencies": {
     "@types/node": "^22.10.5",
@@ -25,10 +27,12 @@
     "@types/react-dom": "^18.3.5",
     "@types/uuid": "^10.0.0",
     "autoprefixer": "^10.4.20",
+    "dotenv": "^17.4.2",
     "eslint": "^8.57.0",
     "eslint-config-next": "14.2.21",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
+    "tsx": "^4.21.0",
     "typescript": "^5.7.2"
   }
 }

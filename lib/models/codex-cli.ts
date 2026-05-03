@@ -22,7 +22,7 @@ function codexExists(): Promise<boolean> {
  * file, which we read back. This avoids parsing stdout which may contain
  * progress/status output mixed with the actual response.
  */
-function runCli(prompt: string): Promise<string> {
+function runCli(modelId: string, prompt: string): Promise<string> {
   const outFile = join(tmpdir(), `codex-eval-${randomUUID()}.txt`);
 
   return new Promise((resolve, reject) => {
@@ -30,7 +30,7 @@ function runCli(prompt: string): Promise<string> {
       CODEX_BIN,
       [
         'exec',
-        '-m', 'gpt-5.3-codex',
+        '-m', modelId,
         '--output-last-message', outFile,
         '--full-auto',
         prompt,
@@ -59,7 +59,7 @@ function runCli(prompt: string): Promise<string> {
 }
 
 /**
- * Query GPT-5.3 Codex by spawning the local Codex CLI.
+ * Query a Codex CLI model by spawning the local `codex` binary.
  * Returns a ModelResponse in the same shape as the API adapters.
  */
 export async function queryCodexCli(
@@ -76,7 +76,7 @@ export async function queryCodexCli(
       modelId,
       response: '',
       latencyMs: Date.now() - startTime,
-      error: 'Codex CLI is not installed. Install it locally to test GPT-5.3 Codex.',
+      error: `Codex CLI is not installed. Install it locally to test ${modelId}.`,
     };
   }
 
@@ -86,8 +86,8 @@ export async function queryCodexCli(
     : prompt;
 
   try {
-    console.log(`[CodexCLI] Running prompt (${fullPrompt.length} chars)...`);
-    const output = await runCli(fullPrompt);
+    console.log(`[CodexCLI] Running ${modelId} (${fullPrompt.length} chars)...`);
+    const output = await runCli(modelId, fullPrompt);
     const latencyMs = Date.now() - startTime;
 
     console.log(`[CodexCLI] Done in ${latencyMs}ms, output: ${output.length} chars`);

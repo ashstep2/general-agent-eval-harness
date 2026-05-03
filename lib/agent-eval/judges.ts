@@ -1,9 +1,10 @@
 import { AgentTask, AgentJudgeScore, AgentDimensionScore, AgentDimensionName } from '@/types';
 import { AGENT_DIMENSION_MAP } from './dimensions';
 import { queryModel } from '@/lib/models/client';
+import { JUDGE_MODELS } from './judge-config';
 
-const PRIMARY_JUDGE = 'claude-sonnet-4-20250514';
-const SECONDARY_JUDGE = 'gpt-5.2';
+const PRIMARY_JUDGE = JUDGE_MODELS.primary;
+const SECONDARY_JUDGE = JUDGE_MODELS.secondary;
 
 function buildJudgePrompt(task: AgentTask, response: string, stepLabel?: string): string {
   const dimensionDescriptions = task.rubrics
@@ -121,26 +122,25 @@ export async function scoreWithSecondaryJudge(
   return scoreWithJudge(SECONDARY_JUDGE, task, response, stepLabel);
 }
 
-export const JUDGE_MODELS = {
-  primary: PRIMARY_JUDGE,
-  secondary: SECONDARY_JUDGE,
-};
+// Re-export so server modules can keep importing JUDGE_MODELS from here.
+export { JUDGE_MODELS };
 
 /**
  * Cross-family scoring: to avoid same-family bias, use the judge from the
  * opposite provider to determine the ranking score.
  *
- * - Anthropic models (Opus, etc.) → scored by OpenAI judge (GPT-5.2)
- * - OpenAI models (Codex, GPT-5.2, etc.) → scored by Anthropic judge (Sonnet)
+ * - Anthropic models → scored by OpenAI judge (GPT-5.4) = secondary
+ * - OpenAI models → scored by Anthropic judge (Sonnet 4) = primary
+ * - Google models → scored by Anthropic judge (Sonnet 4) = primary
  *
  * Returns 'primary' or 'secondary' to indicate which judge's scores should
  * drive the weighted score and winner determination.
  */
 export function getCrossFamilyJudgeRole(
-  modelProvider: 'anthropic' | 'openai'
+  modelProvider: 'anthropic' | 'openai' | 'google'
 ): 'primary' | 'secondary' {
-  // Primary judge is Anthropic (Sonnet), secondary is OpenAI (GPT-5.2).
-  // Cross-family means: Anthropic models use the OpenAI judge (secondary),
-  // OpenAI models use the Anthropic judge (primary).
+  // Primary judge is Anthropic (Sonnet 4), secondary is OpenAI (GPT-5.4).
+  // Anthropic models use the OpenAI judge (secondary).
+  // OpenAI and Google models use the Anthropic judge (primary).
   return modelProvider === 'anthropic' ? 'secondary' : 'primary';
 }

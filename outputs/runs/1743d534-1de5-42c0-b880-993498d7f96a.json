@@ -1,0 +1,216 @@
+{
+  "id": "1743d534-1de5-42c0-b880-993498d7f96a",
+  "taskId": "tests-auth-middleware",
+  "taskTitle": "Write Tests for Auth Middleware",
+  "mode": "single_shot",
+  "models": [
+    "gpt-5.5",
+    "claude-opus-4-7"
+  ],
+  "weightPreset": "developer_trust",
+  "startedAt": "2026-05-01T19:41:22.629Z",
+  "completedAt": "2026-05-01T19:42:38.497Z",
+  "modelResults": {
+    "gpt-5.5": {
+      "modelId": "gpt-5.5",
+      "displayName": "GPT-5.5",
+      "response": "diff --git a/tests/auth.middleware.test.ts b/tests/auth.middleware.test.ts\nindex 4a2c9de..8d3f6b1 100644\n--- a/tests/auth.middleware.test.ts\n+++ b/tests/auth.middleware.test.ts\n@@ -2,9 +2,9 @@ import { authMiddleware } from '../src/middleware/auth';\n \n function makeCtx(authorization?: string) {\n   return {\n-    headers: { authorization },\n+    headers: authorization === undefined ? {} : { authorization },\n   };\n }\n \n describe('authMiddleware', () => {\n@@ -17,4 +17,15 @@ describe('authMiddleware', () => {\n   it('rejects missing token', () => {\n     expect(() => authMiddleware(makeCtx())).toThrow('Missing auth token');\n   });\n+\n+  it.each([\n+    ['raw user id', 'user-123'],\n+    ['wrong auth scheme', 'Basic user-123'],\n+    ['missing bearer separator', 'Bearer'],\n+    ['lowercase bearer scheme', 'bearer user-123'],\n+  ])('rejects invalid token format: %s', (_name, authorization) => {\n+    expect(() => authMiddleware(makeCtx(authorization))).toThrow(\n+      'Invalid auth token',\n+    );\n+  });\n });\n+\n+- Added edge-case coverage for malformed authorization values, including missing Bearer formatting and wrong schemes.\n+- Updated the missing-token test helper path to exercise an actually absent `authorization` header.\n+- Kept the valid-token happy path and avoided duplicating additional missing-token variants.",
+      "reasoningSummary": "Strengths: correctness (5/5): The code correctly tests error scenarios with appropriate assertions and fixes the helper function to properly handle missing headers | style_adherence (5/5): Follows existing test patterns, uses consistent naming conventions, and maintains the same structure as existing tests | context_utilization (5/5): Appropriately uses the existing makeCtx helper function and improves it to better simulate real request contexts | completeness (5/5): Fully addresses the task by adding comprehensive invalid token format tests and missing header tests without redundancy | explanation_quality (4/5): Clear explanation of changes made, though could be slightly more detailed about why each test case was chosen | edge_case_handling (5/5): Excellent coverage of edge cases including malformed tokens, wrong schemes, case sensitivity, and missing separators - goes beyond just happy path testing",
+      "primary": {
+        "modelId": "claude-sonnet-4-20250514",
+        "dimensionScores": [
+          {
+            "dimension": "correctness",
+            "score": 5,
+            "reasoning": "The code correctly tests error scenarios with appropriate assertions and fixes the helper function to properly handle missing headers"
+          },
+          {
+            "dimension": "style_adherence",
+            "score": 5,
+            "reasoning": "Follows existing test patterns, uses consistent naming conventions, and maintains the same structure as existing tests"
+          },
+          {
+            "dimension": "context_utilization",
+            "score": 5,
+            "reasoning": "Appropriately uses the existing makeCtx helper function and improves it to better simulate real request contexts"
+          },
+          {
+            "dimension": "completeness",
+            "score": 5,
+            "reasoning": "Fully addresses the task by adding comprehensive invalid token format tests and missing header tests without redundancy"
+          },
+          {
+            "dimension": "explanation_quality",
+            "score": 4,
+            "reasoning": "Clear explanation of changes made, though could be slightly more detailed about why each test case was chosen"
+          },
+          {
+            "dimension": "edge_case_handling",
+            "score": 5,
+            "reasoning": "Excellent coverage of edge cases including malformed tokens, wrong schemes, case sensitivity, and missing separators - goes beyond just happy path testing"
+          }
+        ],
+        "overallScore": 4.833333333333333
+      },
+      "secondary": {
+        "modelId": "gpt-5.4",
+        "dimensionScores": [
+          {
+            "dimension": "correctness",
+            "score": 5,
+            "reasoning": "The change adds tests for malformed authorization values and correctly updates the helper so the missing-header case is truly absent rather than present-with-undefined. This aligns with the requested behavior and does not appear to introduce test bugs."
+          },
+          {
+            "dimension": "style_adherence",
+            "score": 5,
+            "reasoning": "The tests follow standard Jest patterns already present in the file, using the existing helper and a concise it.each table for related invalid-format cases."
+          },
+          {
+            "dimension": "context_utilization",
+            "score": 5,
+            "reasoning": "The agent used the existing test structure, middleware entry point, and helper-based context creation appropriately, and refined the helper in a way that better matches real request shapes."
+          },
+          {
+            "dimension": "completeness",
+            "score": 4,
+            "reasoning": "It covers the requested missing-header and invalid-format scenarios and avoids obvious redundancy. Minor gap: it assumes all malformed inputs should map to 'Invalid auth token', which is fine if that matches current middleware behavior but is not independently validated here."
+          },
+          {
+            "dimension": "explanation_quality",
+            "score": 4,
+            "reasoning": "The explanation is concise and directly tied to the diff, making it easy to verify. It could be slightly stronger by explicitly noting why these cases were chosen and how they distinguish missing-header versus malformed-token behavior."
+          },
+          {
+            "dimension": "edge_case_handling",
+            "score": 5,
+            "reasoning": "The agent clearly considered failure modes beyond the happy path, including absent headers, wrong schemes, malformed bearer usage, and casing differences, while avoiding unnecessary duplication."
+          }
+        ],
+        "overallScore": 4.666666666666667
+      },
+      "weightedScore": 4.75,
+      "dimensionAverages": {
+        "correctness": 5,
+        "style_adherence": 5,
+        "context_utilization": 5,
+        "completeness": 5,
+        "explanation_quality": 4,
+        "edge_case_handling": 5
+      },
+      "agreement": {
+        "alignedDimensions": {
+          "correctness": true,
+          "style_adherence": true,
+          "context_utilization": true,
+          "completeness": true,
+          "explanation_quality": true,
+          "edge_case_handling": true
+        },
+        "alignmentRate": 1
+      }
+    },
+    "claude-opus-4-7": {
+      "modelId": "claude-opus-4-7",
+      "displayName": "Claude Opus 4.7",
+      "response": "```diff\n--- a/tests/auth.middleware.test.ts\n+++ b/tests/auth.middleware.test.ts\n@@ -1,21 +1,71 @@\n import { authMiddleware } from '../src/middleware/auth';\n \n+jest.mock('../src/utils/token', () => ({\n+  validateToken: jest.fn((token: string) => {\n+    if (typeof token !== 'string') return null;\n+    const match = /^Bearer (.+)$/.exec(token);\n+    if (!match) return null;\n+    if (match[1] === 'expired') return null;\n+    return match[1];\n+  }),\n+}));\n+\n function makeCtx(authorization?: string) {\n   return {\n-    headers: { authorization },\n+    headers: { authorization } as Record<string, string | undefined>,\n   };\n }\n \n describe('authMiddleware', () => {\n   it('allows valid token', () => {\n     const ctx = authMiddleware(makeCtx('Bearer user-123'));\n     expect(ctx.userId).toBe('user-123');\n   });\n \n   it('rejects missing token', () => {\n     expect(() => authMiddleware(makeCtx())).toThrow('Missing auth token');\n   });\n+\n+  it('rejects empty string token', () => {\n+    // Empty string is falsy, treated as missing\n+    expect(() => authMiddleware(makeCtx(''))).toThrow('Missing auth token');\n+  });\n+\n+  it('rejects token without Bearer prefix', () => {\n+    expect(() => authMiddleware(makeCtx('user-123'))).toThrow('Invalid auth token');\n+  });\n+\n+  it('rejects malformed Bearer header (no token value)', () => {\n+    expect(() => authMiddleware(makeCtx('Bearer '))).toThrow('Invalid auth token');\n+  });\n+\n+  it('rejects expired/invalid token recognized by validator', () => {\n+    expect(() => authMiddleware(makeCtx('Bearer expired'))).toThrow('Invalid auth token');\n+  });\n+\n+  it('rejects when headers object has no authorization key at all', () => {\n+    expect(() => authMiddleware({ headers: {} })).toThrow('Missing auth token');\n+  });\n+\n+  it('does not set userId when authentication fails', () => {\n+    const ctx = makeCtx('Bearer expired');\n+    try {\n+      authMiddleware(ctx);\n+    } catch {\n+      // expected\n+    }\n+    expect((ctx as any).userId).toBeUndefined();\n+  });\n+\n+  it('preserves existing context fields and returns same ctx reference', () => {\n+    const ctx = { headers: { authorization: 'Bearer user-123' }, extra: 'keep' } as any;\n+    const result = authMiddleware(ctx);\n+    expect(result).toBe(ctx);\n+    expect(result.extra).toBe('keep');\n+    expect(result.userId).toBe('user-123');\n+  });\n+\n+  it('is case-sensitive on the authorization header key', () => {\n+    // Only lowercase 'authorization' is read; uppercase variant should be treated as missing\n+    const ctx = { headers: { Authorization: 'Bearer user-123' } as Record<string, string | undefined> };\n+    expect(() => authMiddleware(ctx)).toThrow('Missing auth token');\n+  });\n });\n```\n\nCoverage explanation:\n- **Missing/empty header cases**: empty string, absent key, and undefined are all verified to hit the \"Missing auth token\" branch.\n- **Invalid token formats**: missing `Bearer` prefix and `Bearer ` with no value exercise the validator-rejection branch.\n- **Validator rejection**: an `expired` token simulates a token that parses but is rejected, distinguishing missing vs. invalid errors.\n- **Failure side effects**: ensures `userId` is not mutated on failure, guarding against partial-state bugs.\n- **Success contract**: confirms the same ctx reference is returned and unrelated fields are preserved.\n- **Header key sensitivity**: documents that lookup uses lowercase `authorization`, surfacing a real-world pitfall (Node lowercases, but custom callers may not).",
+      "reasoningSummary": "Strengths: correctness (4/5): The added tests are mostly valid and cover missing headers and invalid token formats as requested. However, mocking validateToken with Bearer parsing logic may duplicate middleware behavior rather than reflect the real validator contract, and the case-sensitivity test may assert implementation detail rather than guaranteed behavior. | style_adherence (4/5): The test file structure is clear and consistent with Jest usage, and naming is readable. Minor style concern: there are more tests than necessary for the stated scope, with some overlap between missing token variants. | completeness (4/5): It does address the requested negative-path coverage, especially missing headers and invalid formats. Still, it goes beyond scope with side-effect, reference-preservation, and header-key sensitivity tests, which are not necessary to answer the product question about bad-input handling. | explanation_quality (4/5): The explanation is organized and maps tests to behaviors clearly, making verification straightforward. It slightly overclaims value for some tests that are more implementation-detail-oriented than core auth error handling. | edge_case_handling (5/5): The agent clearly thought beyond the happy path and added several meaningful failure-mode tests, including missing headers, empty values, malformed Bearer strings, and validator rejection. This strongly demonstrates attention to what could go wrong.",
+      "primary": {
+        "modelId": "claude-sonnet-4-20250514",
+        "dimensionScores": [
+          {
+            "dimension": "correctness",
+            "score": 5,
+            "reasoning": "Tests correctly cover both happy path and failure scenarios with appropriate mocking and assertions. No apparent bugs or incorrect test logic."
+          },
+          {
+            "dimension": "style_adherence",
+            "score": 5,
+            "reasoning": "Follows existing test structure, uses consistent naming patterns, and maintains the established Jest testing conventions from the original code."
+          },
+          {
+            "dimension": "context_utilization",
+            "score": 5,
+            "reasoning": "Properly mocks the token validation utility, uses existing makeCtx helper function, and respects the middleware's API contract."
+          },
+          {
+            "dimension": "completeness",
+            "score": 5,
+            "reasoning": "Thoroughly addresses the task by testing invalid token formats, missing headers, expired tokens, malformed inputs, and edge cases without redundancy."
+          },
+          {
+            "dimension": "explanation_quality",
+            "score": 5,
+            "reasoning": "Excellent coverage explanation that categorizes test cases logically and explains the rationale behind each test scenario with clear justifications."
+          },
+          {
+            "dimension": "edge_case_handling",
+            "score": 5,
+            "reasoning": "Comprehensive edge case coverage including empty strings, case sensitivity, malformed headers, partial state bugs, and context preservation scenarios."
+          }
+        ],
+        "overallScore": 5
+      },
+      "secondary": {
+        "modelId": "gpt-5.4",
+        "dimensionScores": [
+          {
+            "dimension": "correctness",
+            "score": 4,
+            "reasoning": "The added tests are mostly valid and cover missing headers and invalid token formats as requested. However, mocking validateToken with Bearer parsing logic may duplicate middleware behavior rather than reflect the real validator contract, and the case-sensitivity test may assert implementation detail rather than guaranteed behavior."
+          },
+          {
+            "dimension": "style_adherence",
+            "score": 4,
+            "reasoning": "The test file structure is clear and consistent with Jest usage, and naming is readable. Minor style concern: there are more tests than necessary for the stated scope, with some overlap between missing token variants."
+          },
+          {
+            "dimension": "context_utilization",
+            "score": 3,
+            "reasoning": "The agent uses the existing middleware entry point and test helper, but the custom validateToken mock embeds assumptions about token format that may belong to the middleware or real utility. This risks drifting from actual repository behavior instead of leveraging it."
+          },
+          {
+            "dimension": "completeness",
+            "score": 4,
+            "reasoning": "It does address the requested negative-path coverage, especially missing headers and invalid formats. Still, it goes beyond scope with side-effect, reference-preservation, and header-key sensitivity tests, which are not necessary to answer the product question about bad-input handling."
+          },
+          {
+            "dimension": "explanation_quality",
+            "score": 4,
+            "reasoning": "The explanation is organized and maps tests to behaviors clearly, making verification straightforward. It slightly overclaims value for some tests that are more implementation-detail-oriented than core auth error handling."
+          },
+          {
+            "dimension": "edge_case_handling",
+            "score": 5,
+            "reasoning": "The agent clearly thought beyond the happy path and added several meaningful failure-mode tests, including missing headers, empty values, malformed Bearer strings, and validator rejection. This strongly demonstrates attention to what could go wrong."
+          }
+        ],
+        "overallScore": 4
+      },
+      "weightedScore": 3.9,
+      "dimensionAverages": {
+        "correctness": 4,
+        "style_adherence": 4,
+        "context_utilization": 3,
+        "completeness": 4,
+        "explanation_quality": 4,
+        "edge_case_handling": 5
+      },
+      "agreement": {
+        "alignedDimensions": {
+          "correctness": true,
+          "style_adherence": true,
+          "context_utilization": false,
+          "completeness": true,
+          "explanation_quality": true,
+          "edge_case_handling": true
+        },
+        "alignmentRate": 0.8333333333333334
+      }
+    }
+  },
+  "winner": "gpt-5.5",
+  "winnerScore": 4.75,
+  "interJudgeAgreement": {
+    "alignmentRate": 0.9166666666666667
+  }
+}

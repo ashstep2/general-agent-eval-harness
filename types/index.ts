@@ -38,7 +38,7 @@ export interface UseCase {
 
 // Model configuration
 export interface ModelConfig {
-  provider: 'anthropic' | 'openai';
+  provider: 'anthropic' | 'openai' | 'google';
   modelId: string;
   displayName: string;
   description: string;

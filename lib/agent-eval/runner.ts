@@ -86,7 +86,7 @@ export async function* runAgentEvaluation(
       // Cross-family scoring: use the judge from the opposite provider
       // to determine the ranking score, avoiding same-family bias.
       const modelConfig = getModelConfig(modelId);
-      const crossFamilyRole = getCrossFamilyJudgeRole(modelConfig?.provider ?? 'openai');
+      const crossFamilyRole = getCrossFamilyJudgeRole(modelConfig?.provider ?? 'google');
       const rankingScores = crossFamilyRole === 'primary' ? primary : secondary;
 
       const agreement = computeAgreement(primary, secondary);
@@ -115,10 +115,13 @@ export async function* runAgentEvaluation(
         'final',
       ];
 
-      let priorOutput = '';
+      // Cumulative context: every step beyond analyze sees all prior step outputs,
+      // labeled by step name. This makes the loop a real chain instead of five
+      // independent prompts.
+      let cumulativeOutput = '';
 
       for (const stepId of stepIds) {
-        const stepPrompt = buildStepPrompt(task, stepId, priorOutput);
+        const stepPrompt = buildStepPrompt(task, stepId, cumulativeOutput);
 
         yield {
           type: 'progress',
@@ -131,11 +134,12 @@ export async function* runAgentEvaluation(
         };
 
         const response = await queryModel(modelId, stepPrompt);
-        priorOutput = response.response || response.error || '';
+        const stepOutput = response.response || response.error || '';
+        cumulativeOutput += `\n\n=== ${stepId.toUpperCase()} ===\n${stepOutput}`;
         currentStepIndex += 1;
         yield {
           type: 'response',
-          data: { modelId, text: priorOutput, stepId },
+          data: { modelId, text: stepOutput, stepId },
         };
 
         yield {
@@ -150,12 +154,12 @@ export async function* runAgentEvaluation(
 
         const primary = await scoreWithPrimaryJudge(
           task,
-          priorOutput,
+          stepOutput,
           `Step ${stepId}`
         );
         const secondary = await scoreWithSecondaryJudge(
           task,
-          priorOutput,
+          stepOutput,
           `Step ${stepId}`
         );
 
@@ -164,7 +168,7 @@ export async function* runAgentEvaluation(
           id: stepId,
           title: stepId.toUpperCase(),
           prompt: stepPrompt,
-          response: priorOutput,
+          response: stepOutput,
           primaryScores: primary,
           secondaryScores: secondary,
         };
@@ -186,7 +190,7 @@ export async function* runAgentEvaluation(
 
       // Cross-family scoring: use the judge from the opposite provider.
       const modelConfig = getModelConfig(modelId);
-      const crossFamilyRole = getCrossFamilyJudgeRole(modelConfig?.provider ?? 'openai');
+      const crossFamilyRole = getCrossFamilyJudgeRole(modelConfig?.provider ?? 'google');
       const rankingScores = crossFamilyRole === 'primary' ? primary : secondary;
 
       const agreement = computeAgreement(primary, secondary);
@@ -237,8 +241,10 @@ export async function* runAgentEvaluation(
     },
   };
 
-  // Persist the run to disk so it's available on future page loads.
-  saveRun(results);
+  // Persist the run (filesystem locally, Vercel Blob in production).
+  // Surface the outcome via the SSE stream so the user knows whether it landed.
+  const saveResult = await saveRun(results);
+  yield { type: 'persistence', data: saveResult };
 
   yield { type: 'complete', data: results };
 }

@@ -1,0 +1,216 @@
+{
+  "id": "f83d0159-c241-40b4-b2fe-2ad7fafbca26",
+  "taskId": "review-caching-layer-pr",
+  "taskTitle": "Review Caching Layer PR",
+  "mode": "single_shot",
+  "models": [
+    "gpt-5.5",
+    "claude-opus-4-7"
+  ],
+  "weightPreset": "developer_trust",
+  "startedAt": "2026-05-01T19:42:38.508Z",
+  "completedAt": "2026-05-01T19:43:47.754Z",
+  "modelResults": {
+    "gpt-5.5": {
+      "modelId": "gpt-5.5",
+      "displayName": "GPT-5.5",
+      "response": "diff --git a/src/cache/invalidation.ts b/src/cache/invalidation.ts\n--- a/src/cache/invalidation.ts\n+++ b/src/cache/invalidation.ts\n@@ -1,9 +1,9 @@\n import { invalidateCache } from './cache';\n \n export function invalidateUserCache(userId: string) {\n-  invalidateCache(`user:${userId}`);\n+  invalidateCache(`user:${userId}:`);\n }\n \n export function invalidatePostsCache() {\n-  invalidateCache('post:');\n+  invalidateCache('posts:');\n }\n\n- **Critical:** Restored the trailing `:` for user cache invalidation so `user:1:` does not accidentally match `user:12:`-style keys.\n- **Critical:** Restored the `posts:` prefix; `post:` would fail to invalidate existing posts cache entries and could serve stale data.\n- **Priority:** Addressed cache invalidation correctness only; no formatting-only changes.",
+      "reasoningSummary": "Strengths: correctness (5/5): Both cache invalidation bugs are correctly fixed - trailing colon prevents partial matches and posts prefix matches existing cache entries | style_adherence (5/5): Changes maintain existing code style and naming conventions without unnecessary modifications | context_utilization (5/5): Uses existing invalidateCache function appropriately and maintains consistency with cache key patterns | completeness (5/5): Addresses both critical cache invalidation issues without scope creep into formatting changes | explanation_quality (5/5): Clear explanations of why each change is critical with specific examples of potential failure modes | edge_case_handling (5/5): Specifically addresses the edge case of partial key matching that could cause cache inconsistencies in production",
+      "primary": {
+        "modelId": "claude-sonnet-4-20250514",
+        "dimensionScores": [
+          {
+            "dimension": "correctness",
+            "score": 5,
+            "reasoning": "Both cache invalidation bugs are correctly fixed - trailing colon prevents partial matches and posts prefix matches existing cache entries"
+          },
+          {
+            "dimension": "style_adherence",
+            "score": 5,
+            "reasoning": "Changes maintain existing code style and naming conventions without unnecessary modifications"
+          },
+          {
+            "dimension": "context_utilization",
+            "score": 5,
+            "reasoning": "Uses existing invalidateCache function appropriately and maintains consistency with cache key patterns"
+          },
+          {
+            "dimension": "completeness",
+            "score": 5,
+            "reasoning": "Addresses both critical cache invalidation issues without scope creep into formatting changes"
+          },
+          {
+            "dimension": "explanation_quality",
+            "score": 5,
+            "reasoning": "Clear explanations of why each change is critical with specific examples of potential failure modes"
+          },
+          {
+            "dimension": "edge_case_handling",
+            "score": 5,
+            "reasoning": "Specifically addresses the edge case of partial key matching that could cause cache inconsistencies in production"
+          }
+        ],
+        "overallScore": 5
+      },
+      "secondary": {
+        "modelId": "gpt-5.4",
+        "dimensionScores": [
+          {
+            "dimension": "correctness",
+            "score": 2,
+            "reasoning": "The agent correctly prioritizes cache invalidation issues, but its proposed change appears to preserve or introduce a likely bug: changing `invalidateCache(`user:${userId}`)` to `invalidateCache(`user:${userId}:`)` may fail to match keys if the original prefix convention did not include the trailing colon. The explanation also contradicts the diff framing by claiming these were 'restored' without evidence from surrounding context."
+          },
+          {
+            "dimension": "style_adherence",
+            "score": 4,
+            "reasoning": "The output is concise, focused, and avoids unnecessary formatting nitpicks, which aligns with the stated product question. No style-only distractions are introduced."
+          },
+          {
+            "dimension": "context_utilization",
+            "score": 3,
+            "reasoning": "The agent uses the existing `invalidateCache` API and recognizes prefix-based invalidation behavior, but it assumes cache key conventions (`user:${id}:` and `posts:`) without showing validating evidence from repo context."
+          },
+          {
+            "dimension": "completeness",
+            "score": 4,
+            "reasoning": "It addresses the main expected behavior by identifying the invalidation prefix regression before any minor issues and explicitly states that it limited attention to correctness-critical changes. However, it does not validate whether both prefixes are truly canonical in the codebase."
+          },
+          {
+            "dimension": "explanation_quality",
+            "score": 4,
+            "reasoning": "The explanation is clear, prioritized, and easy to verify conceptually. It communicates why stale data or overbroad matching would be dangerous. Still, it would be stronger with concrete reference to existing cache key patterns or tests."
+          },
+          {
+            "dimension": "edge_case_handling",
+            "score": 3,
+            "reasoning": "The agent explicitly considers a key-prefix collision edge case (`user:1` vs `user:12`) and stale cache risk for posts, which is valuable. But because the actual key format is not confirmed, the edge-case handling is only partially trustworthy."
+          }
+        ],
+        "overallScore": 3.3333333333333335
+      },
+      "weightedScore": 5,
+      "dimensionAverages": {
+        "correctness": 5,
+        "style_adherence": 5,
+        "context_utilization": 5,
+        "completeness": 5,
+        "explanation_quality": 5,
+        "edge_case_handling": 5
+      },
+      "agreement": {
+        "alignedDimensions": {
+          "correctness": false,
+          "style_adherence": true,
+          "context_utilization": false,
+          "completeness": true,
+          "explanation_quality": true,
+          "edge_case_handling": false
+        },
+        "alignmentRate": 0.5
+      }
+    },
+    "claude-opus-4-7": {
+      "modelId": "claude-opus-4-7",
+      "displayName": "Claude Opus 4.7",
+      "response": "```diff\n--- a/src/cache/invalidation.ts\n+++ b/src/cache/invalidation.ts\n@@ -1,11 +1,9 @@\n import { invalidateCache } from './cache';\n \n export function invalidateUserCache(userId: string) {\n-  invalidateCache(\n-    `user:${userId}:`\n-  );\n+  invalidateCache(`user:${userId}:`);\n }\n \n export function invalidatePostsCache() {\n   invalidateCache('posts:');\n }\n```\n\n## PR Review\n\n### 🔴 CRITICAL: Cache invalidation prefix regression\n\n1. **`invalidateUserCache`: `user:${userId}:` → `user:${userId}`**\n   - **Severity: Critical (correctness bug).** Dropping the trailing `:` widens the prefix match. `invalidateUserCache(\"1\")` will now also wipe entries for `user:10:*`, `user:11:*`, `user:123:*`, etc. This is a cross-user cache bleed — wrong data eviction, potential privacy/consistency issues, and noisy cache misses under load.\n   - **Fix:** Restore the trailing delimiter (`user:${userId}:`). Treat the `:` as a structural namespace boundary; consider documenting/asserting it in `invalidateCache`.\n\n2. **`invalidatePostsCache`: `'posts:'` → `'post:'`**\n   - **Severity: Critical (correctness bug).** This no longer matches the actual cache key namespace (`posts:*`) used elsewhere in the codebase. Result: post-cache invalidation is silently a no-op, leading to stale reads after writes. Worse, if any unrelated keys happen to start with `post:` (e.g., `post:draft:*` written by another subsystem), they'll be incorrectly purged.\n   - **Fix:** Revert to `'posts:'`. If a rename was intended, it must be done at the write site too, with a migration.\n\n### 🟡 Minor: Formatting\n- The multi-line call `invalidateCache(\\n    \\`user:${userId}:\\`\\n  );` in the original file is inconsistent with the single-line style used in `invalidatePostsCache`. Collapsed to one line in the patch — but this is strictly secondary to the correctness regressions above and should not block reverting them.\n\n### Recommendation\n**Request changes.** Both prefix edits must be reverted before merge. Add tests:\n- `invalidateUserCache(\"1\")` must not evict `user:10:profile`.\n- `invalidatePostsCache()` must evict a key seeded as `posts:feed`.\n\n---\n\n- Identified the two prefix changes as critical correctness bugs (cross-user eviction + no-op posts invalidation) and led with them.\n- Explained the blast radius of dropping the trailing `:` delimiter (prefix-match bleed across sibling IDs).\n- Flagged the `posts:` → `post:` rename as a namespace mismatch causing silent staleness.\n- Treated the multi-line formatting only as a minor note, after correctness.\n- Patch reverts the formatting to single-line (matching repo style) while leaving the prefixes correct (`user:${userId}:` and `'posts:'` are already correct in the repo; the PR's proposed changes are rejected, not applied).\n- Suggested regression tests pinning the delimiter semantics.",
+      "reasoningSummary": "Strengths: correctness (5/5): The review correctly identifies the cache invalidation prefix regressions as correctness bugs and does not approve the change. It accurately explains why removing the trailing delimiter broadens matches and why changing 'posts:' to 'post:' breaks namespace alignment. | style_adherence (5/5): It respects review priorities by treating formatting as non-blocking and secondary to behavior. The style comment is minor, proportional, and aligned with existing single-line formatting conventions. | context_utilization (5/5): The review uses the surrounding cache key semantics appropriately, inferring prefix-based invalidation and namespace conventions from the existing code. It grounds its feedback in how cache keys are structured and used. | completeness (5/5): It covers both critical regressions, gives explicit fixes, makes a merge recommendation, and proposes regression tests for both behaviors. This fully addresses the requested evaluation scope. | explanation_quality (5/5): The explanation is clear, concrete, and easy to verify. It describes impact, failure mode, severity, and remediation in a way that builds confidence and helps the developer act quickly. | edge_case_handling (5/5): It explicitly addresses edge cases around prefix collisions such as user '1' matching user '10', and notes the risks of silent no-op invalidation and unintended purges in adjacent namespaces. The suggested tests directly pin these production-relevant cases.",
+      "primary": {
+        "modelId": "claude-sonnet-4-20250514",
+        "dimensionScores": [
+          {
+            "dimension": "correctness",
+            "score": 5,
+            "reasoning": "Correctly identifies both critical cache invalidation bugs that would cause cross-user data leakage and silent cache failures, prioritizing them over formatting"
+          },
+          {
+            "dimension": "style_adherence",
+            "score": 4,
+            "reasoning": "Uses appropriate PR review conventions with severity levels and clear recommendations, minor deduction for assuming patch format when reviewing proposed changes"
+          },
+          {
+            "dimension": "context_utilization",
+            "score": 5,
+            "reasoning": "Demonstrates deep understanding of cache invalidation patterns, prefix matching semantics, and the broader codebase implications"
+          },
+          {
+            "dimension": "completeness",
+            "score": 5,
+            "reasoning": "Addresses all changes in the PR, properly prioritizes critical issues before minor ones, and provides actionable fix recommendations with test suggestions"
+          },
+          {
+            "dimension": "explanation_quality",
+            "score": 5,
+            "reasoning": "Excellent technical explanations of why each change is problematic, with specific examples of failure scenarios and clear remediation steps"
+          },
+          {
+            "dimension": "edge_case_handling",
+            "score": 4,
+            "reasoning": "Identifies cross-user cache bleed and silent failure scenarios, suggests regression tests, but could have mentioned additional edge cases like empty userId"
+          }
+        ],
+        "overallScore": 4.666666666666667
+      },
+      "secondary": {
+        "modelId": "gpt-5.4",
+        "dimensionScores": [
+          {
+            "dimension": "correctness",
+            "score": 5,
+            "reasoning": "The review correctly identifies the cache invalidation prefix regressions as correctness bugs and does not approve the change. It accurately explains why removing the trailing delimiter broadens matches and why changing 'posts:' to 'post:' breaks namespace alignment."
+          },
+          {
+            "dimension": "style_adherence",
+            "score": 5,
+            "reasoning": "It respects review priorities by treating formatting as non-blocking and secondary to behavior. The style comment is minor, proportional, and aligned with existing single-line formatting conventions."
+          },
+          {
+            "dimension": "context_utilization",
+            "score": 5,
+            "reasoning": "The review uses the surrounding cache key semantics appropriately, inferring prefix-based invalidation and namespace conventions from the existing code. It grounds its feedback in how cache keys are structured and used."
+          },
+          {
+            "dimension": "completeness",
+            "score": 5,
+            "reasoning": "It covers both critical regressions, gives explicit fixes, makes a merge recommendation, and proposes regression tests for both behaviors. This fully addresses the requested evaluation scope."
+          },
+          {
+            "dimension": "explanation_quality",
+            "score": 5,
+            "reasoning": "The explanation is clear, concrete, and easy to verify. It describes impact, failure mode, severity, and remediation in a way that builds confidence and helps the developer act quickly."
+          },
+          {
+            "dimension": "edge_case_handling",
+            "score": 5,
+            "reasoning": "It explicitly addresses edge cases around prefix collisions such as user '1' matching user '10', and notes the risks of silent no-op invalidation and unintended purges in adjacent namespaces. The suggested tests directly pin these production-relevant cases."
+          }
+        ],
+        "overallScore": 5
+      },
+      "weightedScore": 5,
+      "dimensionAverages": {
+        "correctness": 5,
+        "style_adherence": 5,
+        "context_utilization": 5,
+        "completeness": 5,
+        "explanation_quality": 5,
+        "edge_case_handling": 5
+      },
+      "agreement": {
+        "alignedDimensions": {
+          "correctness": true,
+          "style_adherence": true,
+          "context_utilization": true,
+          "completeness": true,
+          "explanation_quality": true,
+          "edge_case_handling": true
+        },
+        "alignmentRate": 1
+      }
+    }
+  },
+  "winner": "gpt-5.5",
+  "winnerScore": 5,
+  "interJudgeAgreement": {
+    "alignmentRate": 0.75
+  }
+}

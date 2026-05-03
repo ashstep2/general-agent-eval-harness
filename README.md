@@ -2,7 +2,7 @@
 
 ![Dashboard](images/dash.png)
 
-Head-to-head evaluation of GPT-5.3 Codex vs Claude Opus 4.6 across 10 real coding tasks, scored by cross-family dual judges to eliminate same-provider bias.
+Head-to-head evaluation of GPT-5.5, Claude Opus 4.7, and Gemini 3.1 Pro across 10 real coding tasks, scored by cross-family dual judges to eliminate same-provider bias. Previous-gen baselines (GPT-5.4, GPT-5.3 Codex, Opus 4.6, Sonnet 4.6, Opus 4.5) are still selectable for longitudinal comparison.
 
 **Finding:** Cross-family judging shifted rankings on 3 of 10 tasks. (If you let Claude judge Claude, scores inflate by +1.33 points.)
 
@@ -21,6 +21,7 @@ Create `.env.local`:
 ```env
 ANTHROPIC_API_KEY=sk-ant-...
 OPENAI_API_KEY=sk-...
+GOOGLE_API_KEY=AIza...
 ```
 
 ```bash
@@ -74,11 +75,12 @@ The generated snapshot is the source of truth for README/shareable numbers.
 │  Task Selection ──→ Model Router ──→ Adapters            │
 │                         │              ├─ Anthropic API  │
 │                         │              ├─ OpenAI API     │
+│                         │              ├─ Google AI API  │
 │                         │              └─ Codex CLI      │
 │                         ▼                                │
 │                   Dual Judge System                      │
 │                    ├─ Claude Sonnet 4 (primary)          │
-│                    └─ GPT-5.2 (secondary)                │
+│                    └─ GPT-5.4 (secondary)                │
 │                         │                                │
 │                         ▼                                │
 │              Cross-Family Scoring                        │
@@ -93,11 +95,11 @@ The generated snapshot is the source of truth for README/shareable numbers.
 └──────────────────────────────────────────────────────────┘
 ```
 
-**Model routing:** Unified client routes to Anthropic API (Claude), OpenAI API (GPT-5.2), or Codex CLI subprocess (GPT-5.3 Codex). 
+**Model routing:** Unified client routes to Anthropic API (Claude), OpenAI API (GPT), Google AI API (Gemini), or Codex CLI subprocess (GPT-5.3 Codex).
 
-**SSE streaming:** Eval runner uses Server-Sent Events over POST (fetch + ReadableStream). 
+**SSE streaming:** Eval runner uses Server-Sent Events over POST (fetch + ReadableStream).
 
-**Cross-family scoring:** The ranking score comes from the opposite-provider judge: Sonnet scores OpenAI models, GPT-5.2 scores Anthropic models. Both judges score every response (for the agreement metric), but only the cross-family score determines the winner. This eliminates same-family bias.
+**Cross-family scoring:** The ranking score comes from the opposite-provider judge: Sonnet scores OpenAI and Google models, GPT-5.4 scores Anthropic models. Both judges score every response (for the agreement metric), but only the cross-family score determines the winner. This eliminates same-family bias.
 
 **File persistence:** Results save as JSON: inspectable, diffable, committable. No database.
 
@@ -114,11 +116,11 @@ Every model response is scored by two independent LLM judges:
 | Judge | Model | Provider |
 |-------|-------|----------|
 | **Judge A** | Claude Sonnet 4 | Anthropic |
-| **Judge B** | GPT-5.2 | OpenAI |
+| **Judge B** | GPT-5.4 | OpenAI |
 
 **Why two judges:** A single judge introduces systematic bias. An Anthropic judge might favor Anthropic outputs (self-preference or family bias).
 
-**Why these specific models:** The models *being evaluated* (Opus 4.6, GPT-5.3 Codex) cannot judge their own outputs; no model can be both contestant and judge. Sonnet 4 is the strongest non-evaluated Anthropic model.
+**Why these specific models:** The models *being evaluated* (Opus 4.7, GPT-5.5, Gemini 3.1 Pro, etc.) cannot judge their own outputs; no model can be both contestant and judge. Sonnet 4 is the strongest non-evaluated Anthropic model. GPT-5.4 is now a previous-gen model retained as the OpenAI judge — this actually gives it a cleaner role: it's no longer the OpenAI flagship being evaluated competitively, so it can serve as the OpenAI-side judge. GPT-5.4 still appears in the eval target list for longitudinal comparison; when it's the subject of a run, its cross-family score (from Sonnet) drives the ranking.
 
 ### 2. Cross-family scoring determines the winner
 
@@ -126,8 +128,9 @@ The ranking score comes from the **cross-family judge**, the judge from the oppo
 
 | Model being evaluated | Provider | Scored by |
 |---|---|---|
-| Claude Opus 4.6 | Anthropic | GPT-5.2 (OpenAI) |
-| GPT-5.3 Codex | OpenAI | Claude Sonnet 4 (Anthropic) |
+| Claude Opus 4.7 | Anthropic | GPT-5.4 (OpenAI) |
+| GPT-5.5 | OpenAI | Claude Sonnet 4 (Anthropic) |
+| Gemini 3.1 Pro | Google | Claude Sonnet 4 (Anthropic) |
 
 Both judges still score every response (for the inter-judge agreement metric), but the **winner** is determined solely by the cross-family judge.
 
@@ -163,9 +166,9 @@ The same dimension scores produce different winners depending on which weight pr
 
 **Why this matters:** The preset you choose reveals what you believe matters.
 
-### 5. GPT-5.3 Codex runs via CLI subprocess, not API.
+### 5. Codex CLI runs as a subprocess, not via API.
 
-Because Codex is designed as a CLI-native coding agent.
+GPT-5.3 Codex (and any future Codex CLI model) is invoked via the local `codex` binary because Codex is designed as a CLI-native coding agent. The CLI router uses each model's `modelId` directly, so a new Codex variant can be added by registering it in `lib/data/models.ts` with `type: 'cli'`.
 
 ### 6. Fixture repos with real patterns, not synthetic puzzles
 
@@ -234,6 +237,7 @@ agent-eval-harness/
 │   │   ├── client.ts                # Unified model router
 │   │   ├── anthropic.ts             # Claude adapter (2K tokens)
 │   │   ├── openai.ts                # GPT adapter (16K tokens)
+│   │   ├── gemini.ts                # Gemini adapter (8K tokens)
 │   │   └── codex-cli.ts             # Codex CLI subprocess adapter
 │   ├── data/models.ts               # Model registry
 │   └── runs/storage.ts              # JSON file persistence
@@ -249,14 +253,21 @@ agent-eval-harness/
 
 | Model | ID | Provider | Role |
 |-------|-----|----------|------|
+| GPT-5.5 | `gpt-5.5` | OpenAI | Evaluation target — current flagship |
+| GPT-5.4 | `gpt-5.4` | OpenAI | Secondary judge + previous-gen target |
 | GPT-5.3 Codex | `gpt-5.3-codex` | OpenAI | Evaluation target (via CLI) |
-| GPT-5.2 | `gpt-5.2` | OpenAI | Evaluation target + secondary judge |
+| GPT-5.2 | `gpt-5.2` | OpenAI | Evaluation target |
 | GPT-5 Mini | `gpt-5-mini` | OpenAI | Evaluation target |
 | GPT-5 Nano | `gpt-5-nano` | OpenAI | Evaluation target |
-| Claude Opus 4.6 | `claude-opus-4-6` | Anthropic | Evaluation target |
+| Claude Opus 4.7 | `claude-opus-4-7` | Anthropic | Evaluation target — current flagship |
+| Claude Opus 4.6 | `claude-opus-4-6` | Anthropic | Previous-gen target |
+| Claude Sonnet 4.6 | `claude-sonnet-4-6` | Anthropic | Evaluation target |
 | Claude Opus 4.5 | `claude-opus-4-5-20251101` | Anthropic | Evaluation target |
 | Claude Sonnet 4 | `claude-sonnet-4-20250514` | Anthropic | Primary judge |
-| Claude Haiku 3.5 | `claude-3-5-haiku-20241022` | Anthropic | Evaluation target |
+| Claude Haiku 4.5 | `claude-haiku-4-5-20251001` | Anthropic | Evaluation target |
+| Gemini 2.5 Pro | `gemini-2.5-pro` | Google | Evaluation target |
+| Gemini 2.5 Flash | `gemini-2.5-flash` | Google | Evaluation target |
+| Gemini 3.1 Pro (Preview) | `gemini-3.1-pro-preview` | Google | Evaluation target |
 
 ---
 
@@ -264,7 +275,8 @@ agent-eval-harness/
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `ANTHROPIC_API_KEY` | Yes | Anthropic API key |
-| `OPENAI_API_KEY` | Yes | OpenAI API key |
+| `ANTHROPIC_API_KEY` | Yes | Anthropic API key (judges + Claude models) |
+| `OPENAI_API_KEY` | Yes | OpenAI API key (judge + GPT models) |
+| `GOOGLE_API_KEY` | For Gemini | Google AI API key (Gemini models) |
 
 ---

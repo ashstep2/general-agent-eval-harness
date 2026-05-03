@@ -1,0 +1,216 @@
+{
+  "id": "5e8d448e-6306-4513-93f1-2ef77200ba2c",
+  "taskId": "add-types-untyped-module",
+  "taskTitle": "Add TypeScript Types to Untyped Module",
+  "mode": "single_shot",
+  "models": [
+    "gpt-5.5",
+    "claude-opus-4-7"
+  ],
+  "weightPreset": "developer_trust",
+  "startedAt": "2026-05-01T19:43:47.767Z",
+  "completedAt": "2026-05-01T19:44:57.821Z",
+  "modelResults": {
+    "gpt-5.5": {
+      "modelId": "gpt-5.5",
+      "displayName": "GPT-5.5",
+      "response": "diff --git a/src/legacy/analytics.d.ts b/src/legacy/analytics.d.ts\nnew file mode 100644\nindex 0000000..1d3972f\n--- /dev/null\n+++ b/src/legacy/analytics.d.ts\n@@ -0,0 +1,29 @@\n+export type AnalyticsProperties = Record<string, string | number | boolean>;\n+\n+export interface AnalyticsEvent {\n+  name: string;\n+  properties: AnalyticsProperties;\n+  timestamp: number;\n+}\n+\n+export interface AnalyticsUser {\n+  id: string;\n+  email: string;\n+  plan?: string;\n+}\n+\n+export interface NormalizedUser {\n+  id: string;\n+  email: string;\n+  plan: string;\n+}\n+\n+export function trackEvent(\n+  name: string,\n+  properties?: AnalyticsProperties,\n+): AnalyticsEvent;\n+\n+export function normalizeUser(user: AnalyticsUser): NormalizedUser;\n+\n+declare const analytics: {\n+  trackEvent: typeof trackEvent;\n+  normalizeUser: typeof normalizeUser;\n+};\n+\n+export default analytics;\n\n- Added a declaration file for the legacy JavaScript module without modifying its implementation.\n- Typed `trackEvent` from observed usage: required event name, optional primitive-valued properties, timestamped event return.\n- Typed `normalizeUser` so optional input `plan` becomes a guaranteed string on normalized output.\n- Preserved the existing default-import consumer pattern while also exposing named function/type declarations.",
+      "reasoningSummary": "Strengths: correctness (4/5): The solution creates a proper .d.ts file with well-structured types. However, without seeing the actual implementation or usage patterns, there's uncertainty about whether the inferred types match real usage. | style_adherence (5/5): Follows TypeScript declaration file conventions perfectly with proper interface naming, export patterns, and module declaration structure. | completeness (4/5): Provides comprehensive type definitions covering the main functionality with both named and default exports. Missing some details about how edge cases in cross-file usage were handled. | explanation_quality (4/5): Clear explanation of design decisions, especially the plan property transformation and export patterns. Could better explain the cross-file inference process that was supposedly used.",
+      "primary": {
+        "modelId": "claude-sonnet-4-20250514",
+        "dimensionScores": [
+          {
+            "dimension": "correctness",
+            "score": 4,
+            "reasoning": "The solution creates a proper .d.ts file with well-structured types. However, without seeing the actual implementation or usage patterns, there's uncertainty about whether the inferred types match real usage."
+          },
+          {
+            "dimension": "style_adherence",
+            "score": 5,
+            "reasoning": "Follows TypeScript declaration file conventions perfectly with proper interface naming, export patterns, and module declaration structure."
+          },
+          {
+            "dimension": "context_utilization",
+            "score": 3,
+            "reasoning": "Claims to infer types from cross-file usage patterns but doesn't demonstrate how the actual usage was analyzed. The types seem reasonable but lack evidence of cross-file analysis."
+          },
+          {
+            "dimension": "completeness",
+            "score": 4,
+            "reasoning": "Provides comprehensive type definitions covering the main functionality with both named and default exports. Missing some details about how edge cases in cross-file usage were handled."
+          },
+          {
+            "dimension": "explanation_quality",
+            "score": 4,
+            "reasoning": "Clear explanation of design decisions, especially the plan property transformation and export patterns. Could better explain the cross-file inference process that was supposedly used."
+          },
+          {
+            "dimension": "edge_case_handling",
+            "score": 3,
+            "reasoning": "Handles optional properties and type transformations well, but doesn't address potential edge cases like malformed data, null values, or complex nested properties that might exist in real usage."
+          }
+        ],
+        "overallScore": 3.8333333333333335
+      },
+      "secondary": {
+        "modelId": "gpt-5.4",
+        "dimensionScores": [
+          {
+            "dimension": "correctness",
+            "score": 4,
+            "reasoning": "Adding a .d.ts for an untyped module is the right mechanism and the declarations are internally coherent. However, correctness is not fully provable from the diff alone: the default export shape may or may not match the JS module at runtime, and the properties type may be too narrow if actual callers pass null, arrays, or nested objects."
+          },
+          {
+            "dimension": "style_adherence",
+            "score": 4,
+            "reasoning": "The change is minimal, non-invasive, and uses standard TypeScript declaration patterns. It preserves default-import usage and named exports, which is stylistically reasonable, though exact repo conventions cannot be verified from the snippet."
+          },
+          {
+            "dimension": "context_utilization",
+            "score": 3,
+            "reasoning": "The agent claims to infer types from observed usage, and the chosen shapes look plausible, especially the normalizeUser input/output distinction. But there is no evidence in the patch of deeper cross-file inference or alignment with existing types elsewhere in the repo, so context use appears only partial."
+          },
+          {
+            "dimension": "completeness",
+            "score": 4,
+            "reasoning": "The task asked to add TypeScript types to an untyped module, and this is substantially addressed with a declaration file covering core functions, return types, and exports. It would be more complete if it demonstrated module resolution compatibility with the original JS file or covered any additional exports if they exist."
+          },
+          {
+            "dimension": "explanation_quality",
+            "score": 4,
+            "reasoning": "The explanation is concise and maps each declaration to an intended usage pattern, making the change easy to review. It is somewhat high level and would be stronger if it cited specific call sites or why the inferred fields are guaranteed."
+          },
+          {
+            "dimension": "edge_case_handling",
+            "score": 3,
+            "reasoning": "There is some attention to edge cases, such as optional input plan becoming required after normalization and optional event properties. But the declarations do not account for potentially absent email/id, flexible property payloads, or CommonJS/ESM export interop issues that often matter for legacy modules."
+          }
+        ],
+        "overallScore": 3.6666666666666665
+      },
+      "weightedScore": 3.8,
+      "dimensionAverages": {
+        "correctness": 4,
+        "style_adherence": 5,
+        "context_utilization": 3,
+        "completeness": 4,
+        "explanation_quality": 4,
+        "edge_case_handling": 3
+      },
+      "agreement": {
+        "alignedDimensions": {
+          "correctness": true,
+          "style_adherence": true,
+          "context_utilization": true,
+          "completeness": true,
+          "explanation_quality": true,
+          "edge_case_handling": true
+        },
+        "alignmentRate": 1
+      }
+    },
+    "claude-opus-4-7": {
+      "modelId": "claude-opus-4-7",
+      "displayName": "Claude Opus 4.7",
+      "response": "```diff\n--- /dev/null\n+++ b/src/legacy/analytics.d.ts\n@@ -0,0 +1,21 @@\n+export interface LegacyAnalyticsEvent {\n+  name: string;\n+  properties: Record<string, string | number | boolean>;\n+  timestamp: number;\n+}\n+\n+export interface LegacyUserInput {\n+  id: string;\n+  email: string;\n+  plan?: string;\n+}\n+\n+export interface LegacyNormalizedUser {\n+  id: string;\n+  email: string;\n+  plan: string;\n+}\n+\n+export function trackEvent(\n+  name: string,\n+  properties?: Record<string, string | number | boolean>\n+): LegacyAnalyticsEvent;\n+\n+export function normalizeUser(user: LegacyUserInput): LegacyNormalizedUser;\n```\n\nExplanation:\n- Added `src/legacy/analytics.d.ts` to provide TypeScript declarations without modifying the JS file.\n- Inferred `trackEvent`'s signature from its consumer in `src/services/analytics.ts`: it takes a name string and a properties record, returning an `AnalyticsEvent`-shaped object (matching the JS implementation's `{name, properties, timestamp}`).\n- Inferred `normalizeUser`'s input from `UserProfile` usage (`id`, `email`, optional `plan`); the return type makes `plan` non-optional since the JS defaults it to `'free'`, which matches how `normalized.plan` is used as a definite string in the consumer.\n- Property value types align with `AnalyticsEvent.properties` (`Record<string, string | number | boolean>`) used downstream.\n- Kept declaration names distinct (`Legacy*`) to avoid collision with the service-layer types already exported from `src/services/analytics.ts`.",
+      "reasoningSummary": "Strengths: correctness (4/5): Adding a .d.ts for the untyped module is an appropriate way to type legacy JS without changing runtime behavior. The inferred signatures are plausible and the normalizeUser return type usefully reflects defaulting plan to a string. Main risk is that the properties record may be too narrow if real callers pass null, arrays, or nested values, but based on the stated usage it likely works. | style_adherence (4/5): The solution follows a common TypeScript convention by introducing a declaration file alongside legacy JS. It is clean and minimally invasive. Slight style concern: using Legacy-prefixed type names may not match existing repo naming if declarations usually mirror runtime API names more directly. | context_utilization (5/5): The change explicitly infers types from cross-file usage and downstream assumptions, which is exactly what the product question asks about. It aligns trackEvent and normalizeUser with consumer expectations and recognizes that normalized.plan is treated as definitely present. | completeness (4/5): It covers the described legacy module API with declarations for both exported functions and related object shapes. The main gap is that completeness depends on whether these are truly the only exports and whether module resolution matches this file path, but within the provided scope it is solid. | explanation_quality (5/5): The explanation is specific, testable, and grounded in observable usage. It explains why a declaration file was chosen, how each type was inferred, and why plan becomes required in the normalized result.",
+      "primary": {
+        "modelId": "claude-sonnet-4-20250514",
+        "dimensionScores": [
+          {
+            "dimension": "correctness",
+            "score": 5,
+            "reasoning": "The .d.ts file correctly provides TypeScript declarations for the untyped module, with accurate function signatures and interfaces that match the expected usage patterns."
+          },
+          {
+            "dimension": "style_adherence",
+            "score": 5,
+            "reasoning": "Uses proper TypeScript declaration file conventions, appropriate interface naming with 'Legacy' prefix to avoid conflicts, and follows standard typing patterns."
+          },
+          {
+            "dimension": "context_utilization",
+            "score": 5,
+            "reasoning": "Successfully inferred types from cross-file usage patterns, respecting existing service-layer types and avoiding naming collisions while maintaining compatibility."
+          },
+          {
+            "dimension": "completeness",
+            "score": 5,
+            "reasoning": "Fully addresses the task by creating comprehensive type declarations for all exported functions and their data structures, covering both input and output types."
+          },
+          {
+            "dimension": "explanation_quality",
+            "score": 5,
+            "reasoning": "Excellent explanation detailing the inference process, design decisions like making plan non-optional in output, and rationale for naming choices."
+          },
+          {
+            "dimension": "edge_case_handling",
+            "score": 4,
+            "reasoning": "Handles the main edge cases like optional vs required fields and type conflicts well, though could potentially benefit from more specific property validation."
+          }
+        ],
+        "overallScore": 4.833333333333333
+      },
+      "secondary": {
+        "modelId": "gpt-5.4",
+        "dimensionScores": [
+          {
+            "dimension": "correctness",
+            "score": 4,
+            "reasoning": "Adding a .d.ts for the untyped module is an appropriate way to type legacy JS without changing runtime behavior. The inferred signatures are plausible and the normalizeUser return type usefully reflects defaulting plan to a string. Main risk is that the properties record may be too narrow if real callers pass null, arrays, or nested values, but based on the stated usage it likely works."
+          },
+          {
+            "dimension": "style_adherence",
+            "score": 4,
+            "reasoning": "The solution follows a common TypeScript convention by introducing a declaration file alongside legacy JS. It is clean and minimally invasive. Slight style concern: using Legacy-prefixed type names may not match existing repo naming if declarations usually mirror runtime API names more directly."
+          },
+          {
+            "dimension": "context_utilization",
+            "score": 5,
+            "reasoning": "The change explicitly infers types from cross-file usage and downstream assumptions, which is exactly what the product question asks about. It aligns trackEvent and normalizeUser with consumer expectations and recognizes that normalized.plan is treated as definitely present."
+          },
+          {
+            "dimension": "completeness",
+            "score": 4,
+            "reasoning": "It covers the described legacy module API with declarations for both exported functions and related object shapes. The main gap is that completeness depends on whether these are truly the only exports and whether module resolution matches this file path, but within the provided scope it is solid."
+          },
+          {
+            "dimension": "explanation_quality",
+            "score": 5,
+            "reasoning": "The explanation is specific, testable, and grounded in observable usage. It explains why a declaration file was chosen, how each type was inferred, and why plan becomes required in the normalized result."
+          },
+          {
+            "dimension": "edge_case_handling",
+            "score": 3,
+            "reasoning": "The solution handles one important semantic edge case by making normalized plan non-optional after defaulting. However, it does not discuss possible absent properties objects, wider analytics value shapes, or whether additional runtime fields exist on returned objects, so production-readiness is only moderate."
+          }
+        ],
+        "overallScore": 4.166666666666667
+      },
+      "weightedScore": 4.35,
+      "dimensionAverages": {
+        "correctness": 4,
+        "style_adherence": 4,
+        "context_utilization": 5,
+        "completeness": 4,
+        "explanation_quality": 5,
+        "edge_case_handling": 3
+      },
+      "agreement": {
+        "alignedDimensions": {
+          "correctness": true,
+          "style_adherence": true,
+          "context_utilization": true,
+          "completeness": true,
+          "explanation_quality": true,
+          "edge_case_handling": true
+        },
+        "alignmentRate": 1
+      }
+    }
+  },
+  "winner": "claude-opus-4-7",
+  "winnerScore": 4.35,
+  "interJudgeAgreement": {
+    "alignmentRate": 1
+  }
+}

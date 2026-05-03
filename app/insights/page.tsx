@@ -3,41 +3,70 @@
 import { useState } from 'react';
 import { RadarChart } from '@/components/agent-eval/radar-chart';
 
-// ── Hardcoded data from 18 eval runs ──
+// ── Aggregated run data ──
+// Fresh flagship runs (10) + historical baseline (16) + 2 misc = 28 total
+// Source: outputs/latest-run-metrics.json (regenerate via `npm run metrics`)
 
-const TOTAL_RUNS = 18;
+const TOTAL_RUNS = 30;
 
+// New flagship matchup: GPT-5.5 vs Claude Opus 4.7 (10 runs, all single_shot)
+const GPT55_DIMS: Record<string, number> = {
+  correctness: 4.80,
+  style_adherence: 4.80,
+  context_utilization: 4.80,
+  completeness: 4.60,
+  explanation_quality: 4.80,
+  edge_case_handling: 4.40,
+};
+
+const OPUS47_DIMS: Record<string, number> = {
+  correctness: 4.00,
+  style_adherence: 4.10,
+  context_utilization: 4.20,
+  completeness: 4.20,
+  explanation_quality: 4.70,
+  edge_case_handling: 3.70,
+};
+
+// Historical baseline: GPT-5.3 Codex vs Claude Opus 4.6 (16 runs)
 const CODEX_DIMS: Record<string, number> = {
-  context_utilization: 4.88,
   correctness: 4.75,
-  edge_case_handling: 4.25,
-  completeness: 4.69,
   style_adherence: 4.75,
+  context_utilization: 4.88,
+  completeness: 4.69,
   explanation_quality: 4.81,
+  edge_case_handling: 4.25,
 };
 
-const CLAUDE_DIMS: Record<string, number> = {
-  context_utilization: 3.56,
+const OPUS46_DIMS: Record<string, number> = {
   correctness: 3.75,
-  edge_case_handling: 3.31,
-  completeness: 3.81,
   style_adherence: 4.00,
+  context_utilization: 3.56,
+  completeness: 3.81,
   explanation_quality: 4.50,
+  edge_case_handling: 3.31,
 };
 
-const CONTEXT_GAP = CODEX_DIMS.context_utilization - CLAUDE_DIMS.context_utilization;
-const EXPLANATION_GAP = CODEX_DIMS.explanation_quality - CLAUDE_DIMS.explanation_quality;
+// Headline gap-closure metrics
+const NEW_GAP = 0.50;       // GPT-5.5 weighted score − Opus 4.7
+const HISTORICAL_GAP = 0.82; // GPT-5.3 Codex − Opus 4.6
+const GAP_CLOSURE_PCT = Math.round((1 - NEW_GAP / HISTORICAL_GAP) * 100);
 
+const NEW_CONTEXT_GAP = GPT55_DIMS.context_utilization - OPUS47_DIMS.context_utilization;
+const NEW_EXPLANATION_GAP = GPT55_DIMS.explanation_quality - OPUS47_DIMS.explanation_quality;
+const HISTORICAL_CONTEXT_GAP = CODEX_DIMS.context_utilization - OPUS46_DIMS.context_utilization;
+
+// Radar chart shows the new flagship matchup as the headline story
 const RADAR_DATA = {
-  'gpt-5.3-codex': {
-    modelId: 'gpt-5.3-codex',
-    displayName: 'GPT-5.3 Codex',
-    dimensionAverages: CODEX_DIMS,
+  'gpt-5.5': {
+    modelId: 'gpt-5.5',
+    displayName: 'GPT-5.5',
+    dimensionAverages: GPT55_DIMS,
   },
-  'claude-opus-4-6': {
-    modelId: 'claude-opus-4-6',
-    displayName: 'Claude Opus 4.6',
-    dimensionAverages: CLAUDE_DIMS,
+  'claude-opus-4-7': {
+    modelId: 'claude-opus-4-7',
+    displayName: 'Claude Opus 4.7',
+    dimensionAverages: OPUS47_DIMS,
   },
 };
 
@@ -68,27 +97,35 @@ const AGENT_LOOP_DELTAS = [
   },
 ];
 
-const AGREEMENT = { shipFast: 100, devTrust: 76 };
+const AGREEMENT = { shipFast: 100, devTrust: 76, newFlagship: 86 };
 
+// Per-dimension agreement % for the new GPT-5.5 vs Opus 4.7 runs (10 runs each side)
 const DIM_AGREEMENT: Record<string, number> = {
-  explanation_quality: 94,
-  style_adherence: 84,
-  correctness: 81,
-  completeness: 81,
-  edge_case_handling: 81,
-  context_utilization: 62,
+  explanation_quality: 100,
+  completeness: 90,
+  style_adherence: 90,
+  correctness: 80,
+  edge_case_handling: 85,
+  context_utilization: 70,
 };
 
+// Same-family minus cross-family overall scores. Anthropic still inflates Anthropic;
+// the OpenAI judge tends to be stricter on its own family.
 const BIAS_STATS = {
-  claudePrimaryMinusSecondary: 1.33,
-  codexPrimaryMinusSecondary: -0.25,
+  // GPT-5.5 vs Opus 4.7 (new flagship matchup, 10 runs)
+  newClaudeBias: 0.68,    // Sonnet-on-Opus-4.7 minus GPT-on-Opus-4.7
+  newGptBias: -0.75,      // GPT-on-GPT-5.5 minus Sonnet-on-GPT-5.5
+  // Historical baseline for comparison
+  claudePrimaryMinusSecondary: 0.95,  // baseline Sonnet-on-Opus-4.6 inflation
+  codexPrimaryMinusSecondary: -0.71,  // baseline GPT-on-Codex
 };
 
 const EVIDENCE = {
+  // Headline insight now points at the new flagship matchup runs.
   finding1: [
-    'a4f54b5b-dc75-46d6-aa47-919c427e0304',
-    '090a3a64-ca37-4131-b878-bdff8d32fdad',
-    'e3a84e03-5f24-435f-b5cf-57fcd8bcb463',
+    '63f2da90-892a-409e-aa21-b04d73fb3e95',
+    '5e8d448e-6306-4513-93f1-2ef77200ba2c',
+    '9f46df61-c773-4c20-8453-77d3b352c71f',
   ],
   finding2: [
     '0c4948c4-dbee-45a2-bc94-5aaf04102d04',
@@ -125,17 +162,31 @@ const EVIDENCE = {
 };
 
 const RUN_TITLES: Record<string, string> = {
-  'a4f54b5b-dc75-46d6-aa47-919c427e0304': 'Off-by-One Bugfix (single shot, developer trust)',
-  '090a3a64-ca37-4131-b878-bdff8d32fdad': 'Optimize DB Query (single shot, developer trust)',
-  'e3a84e03-5f24-435f-b5cf-57fcd8bcb463': 'Off-by-One Bugfix (single shot, ship fast)',
-  '0c4948c4-dbee-45a2-bc94-5aaf04102d04': 'Caching PR Review (single shot, developer trust)',
-  '2d97e235-30dc-461c-9435-b5dba144c3aa': 'Caching PR Review (agent loop, developer trust)',
-  '10608145-5e70-4077-a417-75fadc66030d': 'Refactor Callbacks (single shot, developer trust)',
-  '5fccd0ae-f8f0-4719-ac07-d7f637e8a491': 'Refactor Callbacks (agent loop, developer trust)',
-  '3c6501c0-9b6f-4562-afd6-eec860f44683': 'Memory Leak (single shot, developer trust)',
-  '3a64f713-bf3f-4bfb-b0bb-90dbf8127069': 'Memory Leak (agent loop, developer trust)',
-  'e7b91243-801b-45ea-96e5-8abf6a4883eb': 'Dark Mode (single shot, developer trust)',
-  '90c16c1e-803c-4227-a6d3-60a5a905ab46': 'Dark Mode (single shot, ship fast)',
+  // New flagship runs (GPT-5.5 vs Opus 4.7)
+  '9f46df61-c773-4c20-8453-77d3b352c71f': 'Add Pagination (5.5 vs 4.7)',
+  '63f2da90-892a-409e-aa21-b04d73fb3e95': 'Off-by-One Bugfix (5.5 vs 4.7)',
+  'dd9b830e-0fe4-4d2b-9fbf-bb3ee8169e16': 'Refactor Callbacks (5.5 vs 4.7)',
+  '1743d534-1de5-42c0-b880-993498d7f96a': 'Auth Tests (5.5 vs 4.7)',
+  'f83d0159-c241-40b4-b2fe-2ad7fafbca26': 'Caching PR Review (5.5 vs 4.7)',
+  '5e8d448e-6306-4513-93f1-2ef77200ba2c': 'TS Types (5.5 vs 4.7)',
+  '2a187f25-b0f2-4d5f-9899-7276385a5731': 'Retry Backoff (5.5 vs 4.7)',
+  'd660cf8c-3e20-476c-87fb-4cf99942b715': 'WebSocket Memory Leak (5.5 vs 4.7)',
+  '7a174fe4-0cf2-445b-bf9f-cf93ddcf0c15': 'Dark Mode (5.5 vs 4.7)',
+  'c972558e-12a9-4bdd-a32f-77d3a1eacb34': 'Optimize DB Query (5.5 vs 4.7)',
+  'e90167a0-eaee-4a59-955f-2e35b9558c80': 'Caching PR Review (5.5 vs 4.7, buggy loop)',
+  'e6501969-5f7f-49bd-b041-84fdc3ddf8d0': 'Caching PR Review (5.5 vs 4.7, fixed loop)',
+  // Historical baseline runs (GPT-5.3 Codex vs Opus 4.6)
+  'a4f54b5b-dc75-46d6-aa47-919c427e0304': 'Off-by-One Bugfix (baseline)',
+  '090a3a64-ca37-4131-b878-bdff8d32fdad': 'Optimize DB Query (baseline)',
+  'e3a84e03-5f24-435f-b5cf-57fcd8bcb463': 'Off-by-One Bugfix (baseline, ship fast)',
+  '0c4948c4-dbee-45a2-bc94-5aaf04102d04': 'Caching PR Review (baseline)',
+  '2d97e235-30dc-461c-9435-b5dba144c3aa': 'Caching PR Review (baseline, agent loop)',
+  '10608145-5e70-4077-a417-75fadc66030d': 'Refactor Callbacks (baseline)',
+  '5fccd0ae-f8f0-4719-ac07-d7f637e8a491': 'Refactor Callbacks (baseline, agent loop)',
+  '3c6501c0-9b6f-4562-afd6-eec860f44683': 'Memory Leak (baseline)',
+  '3a64f713-bf3f-4bfb-b0bb-90dbf8127069': 'Memory Leak (baseline, agent loop)',
+  'e7b91243-801b-45ea-96e5-8abf6a4883eb': 'Dark Mode (baseline)',
+  '90c16c1e-803c-4227-a6d3-60a5a905ab46': 'Dark Mode (baseline, ship fast)',
 };
 
 // ── Insight definitions ──
@@ -143,7 +194,7 @@ const RUN_TITLES: Record<string, string> = {
 const INSIGHTS = [
   { num: 1, title: 'Context utilization is the biggest differentiator' },
   { num: 2, title: 'Same-family judge bias is real and measurable' },
-  { num: 3, title: 'Agent loops fix hallucination but not judgment' },
+  { num: 3, title: 'Agent loops help weak models, hurt strong ones' },
   { num: 4, title: 'Explanation quality is necessary but not sufficient' },
   { num: 5, title: 'Judge agreement correlates with objectivity' },
   { num: 6, title: 'Edge case handling is the most volatile dimension' },
@@ -224,13 +275,26 @@ export default function InsightsPage() {
     <div className="mx-auto max-w-3xl px-6 py-10">
 
       {/* ── Header ── */}
-      <div className="mb-10">
+      <div className="mb-6">
         <h1 className="text-3xl font-semibold tracking-tight text-black">
           What {TOTAL_RUNS} eval runs reveal about coding agents
         </h1>
         <p className="mt-2 text-base text-gray-500">
           Cross-provider dual-judge evaluation across 10 coding tasks and 6 scoring dimensions.
-          GPT-5.3 Codex and Claude Opus 4.6 as subjects; Claude Sonnet 4 and GPT-5.2 as judges.
+          Headline matchup: <strong>GPT-5.5 vs Claude Opus 4.7</strong> (10 single-shot + 1 agent_loop spike).
+          Historical baseline: GPT-5.3 Codex vs Opus 4.6 (16 runs). Judges: Claude Sonnet 4 + GPT-5.4.
+        </p>
+      </div>
+
+      {/* New flagship gap-closure banner */}
+      <div className="mb-10 rounded-lg border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm leading-relaxed text-emerald-900">
+        <div className="text-xs font-semibold uppercase tracking-widest text-emerald-700">Fresh runs · GPT-5.5 vs Claude Opus 4.7</div>
+        <p className="mt-1">
+          GPT-5.5 still leads the matchup ({10 - 1} of 10 tasks won), but Opus 4.7 closed{' '}
+          <strong>{GAP_CLOSURE_PCT}%</strong> of the historical weighted gap (0.82 → {NEW_GAP.toFixed(2)}).
+          The biggest improvement: context utilization, where the gap shrank from{' '}
+          <strong>+{HISTORICAL_CONTEXT_GAP.toFixed(2)}</strong> to <strong>+{NEW_CONTEXT_GAP.toFixed(2)}</strong>.
+          Inter-judge agreement rose to <strong>{AGREEMENT.newFlagship}%</strong> on the new flagships.
         </p>
       </div>
 
@@ -292,9 +356,10 @@ export default function InsightsPage() {
             <RadarChart results={RADAR_DATA} size={260} />
           </div>
           <p className="mb-2 text-sm leading-relaxed text-gray-600">
-            Largest gap: <strong>context utilization</strong> (+{CONTEXT_GAP.toFixed(2)}).
-            Narrowest gap: <strong>explanation quality</strong> (+{EXPLANATION_GAP.toFixed(2)}).
-            Codex leads every dimension, but the advantage concentrates on &quot;trust&quot; dimensions — context utilization, correctness, and completeness — where conservative, accurate changes matter most.
+            On the new flagship matchup, the largest gap is now <strong>correctness</strong> (+{(GPT55_DIMS.correctness - OPUS47_DIMS.correctness).toFixed(2)}),
+            with context utilization at +{NEW_CONTEXT_GAP.toFixed(2)} (down from +{HISTORICAL_CONTEXT_GAP.toFixed(2)} in the historical baseline).
+            Narrowest gap: <strong>explanation quality</strong> (+{NEW_EXPLANATION_GAP.toFixed(2)}) — Opus 4.7 nearly matched GPT-5.5 on explanation quality.
+            GPT-5.5 still leads every dimension, but the advantage has compressed: context utilization is no longer the runaway differentiator it was a generation ago.
           </p>
         </InsightSection>
 
@@ -306,21 +371,28 @@ export default function InsightsPage() {
           evidenceRunIds={EVIDENCE.methodology}
         >
           <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-4">
+            <div className="mb-3 text-[10px] font-medium uppercase tracking-widest text-amber-700">New flagship matchup (10 runs)</div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <div className="text-[10px] font-medium uppercase tracking-widest text-amber-600">Claude judged by Sonnet (same family)</div>
-                <div className="mt-1 text-2xl font-bold text-amber-700">+{BIAS_STATS.claudePrimaryMinusSecondary.toFixed(2)}</div>
+                <div className="text-[10px] font-medium uppercase tracking-widest text-amber-600">Opus 4.7 judged by Sonnet (same family)</div>
+                <div className="mt-1 text-2xl font-bold text-amber-700">+{BIAS_STATS.newClaudeBias.toFixed(2)}</div>
                 <div className="text-xs text-amber-600">higher than cross-family judge</div>
               </div>
               <div>
-                <div className="text-[10px] font-medium uppercase tracking-widest text-gray-500">Codex judged by GPT-5.2 (same family)</div>
-                <div className="mt-1 text-2xl font-bold text-gray-600">{BIAS_STATS.codexPrimaryMinusSecondary.toFixed(2)}</div>
-                <div className="text-xs text-gray-500">vs cross-family judge</div>
+                <div className="text-[10px] font-medium uppercase tracking-widest text-gray-500">GPT-5.5 judged by GPT-5.4 (same family)</div>
+                <div className="mt-1 text-2xl font-bold text-gray-600">{BIAS_STATS.newGptBias.toFixed(2)}</div>
+                <div className="text-xs text-gray-500">vs cross-family judge — OpenAI judge is harsher on its own family</div>
               </div>
+            </div>
+            <div className="mt-3 border-t border-amber-200 pt-2 text-xs text-amber-700">
+              Historical baseline (Opus 4.6 / Codex, 16 runs): same-family Anthropic inflation was{' '}
+              +{BIAS_STATS.claudePrimaryMinusSecondary.toFixed(2)}pt — bias is shrinking but persistent.
             </div>
           </div>
           <p className="mb-2 text-sm leading-relaxed text-gray-600">
-            The same-family judge rated hallucinated bugs, broken API contracts, and incomplete implementations at 4-5/5 — the cross-family judge flagged them.
+            Even with new flagships, the same-family judge rated outputs higher than the cross-family judge on Anthropic models.
+            The OpenAI judge skews the other way — it&apos;s harsher on GPT outputs than the Anthropic judge is. The asymmetry is itself a finding:
+            self-preference is not symmetric across providers, but it&apos;s still real and still a reason to use cross-family judging.
             This matches published findings on LLM self-preference bias (<a href="https://arxiv.org/abs/2410.21819" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">ICLR 2025</a>, <a href="https://arxiv.org/abs/2508.06709" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Spiliopoulou et al. 2025</a>).
           </p>
         </InsightSection>
@@ -328,11 +400,61 @@ export default function InsightsPage() {
         {/* Insight 3: Agent loops */}
         <InsightSection
           num={3}
-          title="Agent loops fix hallucination but not judgment"
-          implication="Make loops task-adaptive: mandatory for code review (eliminates hallucination), optional for generation (judgment errors persist regardless of step count)."
-          evidenceRunIds={EVIDENCE.finding2}
+          title="Agent loops help weak models, hurt strong ones"
+          implication="Loops are not free. Their value depends entirely on the gap between single-shot quality and ceiling. As base models improve, the ROI on loops shrinks toward zero — and on tasks where single-shot already hits ceiling, loops introduce regression. Treat loop architecture as a model-tier decision, not a default."
+          evidenceRunIds={[...EVIDENCE.finding2, 'e6501969-5f7f-49bd-b041-84fdc3ddf8d0']}
         >
+          {/* New flagship spike — Caching PR Review */}
+          <div className="mb-4 rounded-lg border border-rose-200 bg-rose-50 p-4">
+            <div className="mb-2 text-[10px] font-medium uppercase tracking-widest text-rose-700">New flagship spike · Caching PR Review (1 run, agent_loop)</div>
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-rose-200">
+                  <th className="py-1.5 text-left font-medium text-rose-800">Model</th>
+                  <th className="py-1.5 text-right font-medium text-rose-800">Single-shot</th>
+                  <th className="py-1.5 text-right font-medium text-rose-800">Agent loop</th>
+                  <th className="py-1.5 text-right font-medium text-rose-800">Delta</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-b border-rose-100">
+                  <td className="py-1.5 text-rose-900">GPT-5.5</td>
+                  <td className="py-1.5 text-right font-mono text-rose-700">5.00</td>
+                  <td className="py-1.5 text-right font-mono text-rose-700">4.65</td>
+                  <td className="py-1.5 text-right font-mono font-semibold text-rose-700">−0.35</td>
+                </tr>
+                <tr>
+                  <td className="py-1.5 text-rose-900">Claude Opus 4.7</td>
+                  <td className="py-1.5 text-right font-mono text-rose-700">5.00</td>
+                  <td className="py-1.5 text-right font-mono text-rose-700">5.00</td>
+                  <td className="py-1.5 text-right font-mono font-semibold text-emerald-700">0.00</td>
+                </tr>
+              </tbody>
+            </table>
+            <p className="mt-2 text-xs leading-relaxed text-rose-800">
+              Both flagships ace single_shot at ceiling (5.00). With multi-step reasoning, <strong>Opus 4.7 holds ceiling</strong>;
+              GPT-5.5 regresses by 0.35. Compared to GPT-5.3 Codex&apos;s historical <strong>+1.20</strong> boost on the same task,
+              the value of multi-step reasoning has collapsed — and is now <em>model-dependent</em>: Opus 4.7 is more robust to it than GPT-5.5.
+            </p>
+          </div>
+
+          {/* Methodology disclosure — bug found and fixed in agent_loop prompt threading */}
+          <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-4 text-xs leading-relaxed text-blue-900">
+            <div className="mb-1 font-semibold uppercase tracking-widest text-blue-700">Methodology note</div>
+            <p>
+              An earlier version of the agent_loop did not thread prior step output into steps 2-4 (only step 5 saw any prior context),
+              so the &quot;loop&quot; was effectively 5 near-independent prompts. After fixing the prompt threading and re-running,
+              the GPT-5.5 delta moved from −0.15 to −0.35 and the Opus 4.7 delta moved from −0.25 to 0.00 on the same task.
+              The headline finding (loops don&apos;t help these flagships on this task) survives; the per-model directionality is more pronounced.
+              Bug + fix is in <code className="rounded bg-blue-100 px-1">lib/agent-eval/prompt.ts</code>.
+            </p>
+          </div>
+
+          {/* Historical baseline table */}
           <div className="mb-3 overflow-hidden rounded-md border border-gray-200">
+            <div className="bg-gray-50 px-4 py-1.5 text-[10px] font-medium uppercase tracking-widest text-gray-500">
+              Historical baseline · GPT-5.3 Codex (3 runs)
+            </div>
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-100 bg-gray-50">
@@ -355,9 +477,11 @@ export default function InsightsPage() {
             </table>
           </div>
           <p className="mb-2 text-sm leading-relaxed text-gray-600">
-            Caching PR review: the loop caught a hallucinated bug (+{AGENT_LOOP_DELTAS[0].delta.toFixed(2)}).
-            Refactor task: the same API-breaking flaw persisted across all 5 steps (+{AGENT_LOOP_DELTAS[1].delta.toFixed(2)}).
-            Loops help agents self-correct on factual errors but don&apos;t fix flawed design judgment.
+            On the historical Codex / Opus 4.6 generation, loops produced strong gains: caching PR review +{AGENT_LOOP_DELTAS[0].delta.toFixed(2)},
+            refactor +{AGENT_LOOP_DELTAS[1].delta.toFixed(2)}, memory leak +{AGENT_LOOP_DELTAS[2].delta.toFixed(2)}.
+            But on the new flagships, the same task that benefitted most from loops now <strong>regresses</strong> with them.
+            The single-shot ceiling has risen faster than the loop ceiling — there&apos;s less room left for the loop to help, and the extra reasoning steps occasionally introduce noise.
+            <em> N=1 on the new flagship side; the direction is more important than the magnitude until more runs land.</em>
           </p>
         </InsightSection>
 
@@ -374,8 +498,8 @@ export default function InsightsPage() {
                 Pair Programmer Archetype
               </div>
               <div className="space-y-1 text-sm text-gray-600">
-                <div>Explanation: <strong className="text-black">{CLAUDE_DIMS.explanation_quality.toFixed(2)}</strong>/5</div>
-                <div>Correctness: <strong className="text-black">{CLAUDE_DIMS.correctness.toFixed(2)}</strong>/5</div>
+                <div>Explanation: <strong className="text-black">{OPUS46_DIMS.explanation_quality.toFixed(2)}</strong>/5</div>
+                <div>Correctness: <strong className="text-black">{OPUS46_DIMS.correctness.toFixed(2)}</strong>/5</div>
               </div>
               <div className="mt-2 text-xs text-gray-500">Explains well; code may need human correction.</div>
             </div>
@@ -445,7 +569,7 @@ export default function InsightsPage() {
             <div className="rounded-md border border-gray-200 bg-white p-4 text-center">
               <div className="text-[10px] font-medium uppercase tracking-widest text-gray-400">Claude edge case range</div>
               <div className="mt-2 text-2xl font-bold text-gray-800">{EDGE_CASE_RANGE.claudeMin.toFixed(1)} – {EDGE_CASE_RANGE.claudeMax.toFixed(1)}</div>
-              <div className="mt-1 text-xs text-gray-500">across tasks (avg {CLAUDE_DIMS.edge_case_handling.toFixed(2)})</div>
+              <div className="mt-1 text-xs text-gray-500">across tasks (avg {OPUS46_DIMS.edge_case_handling.toFixed(2)})</div>
             </div>
           </div>
           <p className="text-sm leading-relaxed text-gray-600">
@@ -584,10 +708,12 @@ export default function InsightsPage() {
               <p className="mb-3">
                 <strong>Setup:</strong> {TOTAL_RUNS} eval runs across 10 coding tasks (bug fixes, refactors, feature additions, code reviews).
                 Each task scored on 6 dimensions (context utilization, correctness, edge case handling, completeness, style adherence, explanation quality) on a 1-5 scale.
+                The {TOTAL_RUNS} runs split as: 10 fresh GPT-5.5 vs Opus 4.7 (single shot), 16 historical GPT-5.3 Codex vs Opus 4.6 (mixed modes), and 2 misc earlier runs.
               </p>
               <p className="mb-3">
-                <strong>Judges:</strong> Cross-provider dual judges — Claude Sonnet 4 and GPT-5.2 score every run independently.
-                Each judge evaluates both agents to control for prompt sensitivity. Final scores average across judges.
+                <strong>Judges:</strong> Cross-provider dual judges — Claude Sonnet 4 and GPT-5.4 score every run independently.
+                (The historical baseline runs used Sonnet 4 + GPT-5.2.) Each judge evaluates both agents to control for prompt sensitivity.
+                The ranking score comes from the cross-family judge to avoid same-family bias.
               </p>
               <p className="mb-3">
                 <strong>Weight presets:</strong> Two presets encode different product philosophies (ship_fast: correctness-heavy; developer_trust: context-heavy).

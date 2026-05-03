@@ -3,6 +3,10 @@
 import { AgentEvaluationResults, AgentDimensionName } from '@/types';
 import { getAgentDimensionDisplayName, getAgentDimensionDescription } from '@/lib/agent-eval/dimensions';
 import { getModelDisplayName, getModelConfig } from '@/lib/data/models';
+import { JUDGE_MODELS } from '@/lib/agent-eval/judge-config';
+
+const PRIMARY_JUDGE_NAME = getModelDisplayName(JUDGE_MODELS.primary);
+const SECONDARY_JUDGE_NAME = getModelDisplayName(JUDGE_MODELS.secondary);
 
 interface ScoreTableProps {
   results: AgentEvaluationResults;
@@ -20,19 +24,18 @@ const DIMENSIONS: AgentDimensionName[] = [
 /** Returns which judge role is used for ranking (the cross-family one). */
 function getRankingJudgeRole(modelId: string): 'primary' | 'secondary' {
   const config = getModelConfig(modelId);
-  // Primary = Sonnet (Anthropic), Secondary = GPT-5.2 (OpenAI)
-  // Cross-family: Anthropic models → secondary, OpenAI models → primary
+  // Cross-family: Anthropic models → secondary (OpenAI judge), OpenAI/Google → primary (Anthropic judge)
   return config?.provider === 'anthropic' ? 'secondary' : 'primary';
 }
 
 function getRankingJudgeName(modelId: string): string {
   const role = getRankingJudgeRole(modelId);
-  return role === 'primary' ? 'Sonnet 4' : 'GPT-5.2';
+  return role === 'primary' ? PRIMARY_JUDGE_NAME : SECONDARY_JUDGE_NAME;
 }
 
 function getOtherJudgeName(modelId: string): string {
   const role = getRankingJudgeRole(modelId);
-  return role === 'primary' ? 'GPT-5.2' : 'Sonnet 4';
+  return role === 'primary' ? SECONDARY_JUDGE_NAME : PRIMARY_JUDGE_NAME;
 }
 
 function ScoreBar({ score, maxScore = 5, isWinner }: { score: number; maxScore?: number; isWinner: boolean }) {
@@ -90,10 +93,10 @@ export function ScoreTable({ results }: ScoreTableProps) {
           How scoring works
         </div>
         <p className="text-sm leading-relaxed text-gray-600">
-          Each response is scored by two independent LLM judges (Claude Sonnet 4 and GPT-5.2) on a 1&ndash;5 scale.
+          Each response is scored by two independent LLM judges ({PRIMARY_JUDGE_NAME} and {SECONDARY_JUDGE_NAME}) on a 1&ndash;5 scale.
           To avoid <strong>same-family bias</strong> &mdash; where a judge favors outputs from its own provider &mdash;
-          the ranking score comes from the <strong>cross-family judge</strong>: OpenAI models are scored by Sonnet,
-          Anthropic models are scored by GPT-5.2. Both judges&apos; scores are shown for transparency.
+          the ranking score comes from the <strong>cross-family judge</strong>: OpenAI and Google models are scored by {PRIMARY_JUDGE_NAME},
+          and Anthropic models are scored by {SECONDARY_JUDGE_NAME}. Both judges&apos; scores are shown for transparency.
         </p>
       </div>
 

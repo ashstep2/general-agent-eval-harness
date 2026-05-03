@@ -14,9 +14,9 @@ export default function Home() {
       href: '/insights#insight-1',
     },
     {
-      title: 'Agent loops fix hallucination but not judgment.',
+      title: 'Agent loops help weak models, hurt strong ones.',
       description:
-        'Extra reasoning steps help with some failure modes but not others. The data shows where loops help and where they don\'t.',
+        'Historical Codex got +1.20 from loops on caching PR review. GPT-5.5 regresses by 0.35; Opus 4.7 holds ceiling at 0.00. Loop value is now model-dependent.',
       href: '/insights#insight-3',
     },
     {
@@ -35,7 +35,7 @@ export default function Home() {
           Coding Agent Eval Harness: Which coding agent should we trust to ship code?
         </h1>
         <p className="mt-3 max-w-xl text-base text-gray-500">
-          16 eval runs, 10 coding tasks, 6 dimensions, 2 cross-provider judges: compare GPT-5.3 Codex vs Claude Opus 4.6 (or any 3 models).
+          30 eval runs, 10 coding tasks, 6 dimensions, 2 cross-provider judges: GPT-5.5 vs Claude Opus 4.7 (12 fresh runs) plus the historical Codex / Opus-4.6 baseline (16 runs) — Opus 4.7 closed 39% of the gap; agent-loop value is now model-dependent.
         </p>
         <div className="mt-4 flex gap-4">
           <Button onClick={() => router.push('/insights')}>
@@ -54,7 +54,7 @@ export default function Home() {
       <section>
         <div className="grid gap-px overflow-hidden rounded-lg border border-gray-200 bg-gray-200 sm:grid-cols-4">
           {[
-            { stat: '16', label: 'Eval runs', detail: '10 single-shot, 3 ship_fast, 3 agent loop' },
+            { stat: '30', label: 'Eval runs', detail: '12 fresh 5.5/4.7 + 16 baseline + 2 misc' },
             { stat: '10', label: 'Coding tasks', detail: undefined },
             { stat: '6', label: 'Dimensions', detail: undefined },
             { stat: '2', label: 'Cross-provider judges', detail: undefined },

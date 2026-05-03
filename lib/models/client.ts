@@ -1,6 +1,7 @@
 import { ModelResponse } from '@/types';
 import { queryAnthropic, streamAnthropic } from './anthropic';
 import { queryOpenAI, streamOpenAI } from './openai';
+import { queryGemini, streamGemini } from './gemini';
 import { queryCodexCli, streamCodexCli } from './codex-cli';
 import { getModelConfig } from '@/lib/data/models';
 
@@ -24,6 +25,8 @@ export async function queryModel(
     return queryAnthropic(modelId, prompt, systemPrompt);
   } else if (config.provider === 'openai') {
     return queryOpenAI(modelId, prompt, systemPrompt);
+  } else if (config.provider === 'google') {
+    return queryGemini(modelId, prompt, systemPrompt);
   }
 
   return { modelId, response: '', latencyMs: 0, error: `Unsupported provider: ${config.provider}` };
@@ -46,6 +49,8 @@ export async function* streamModel(
     yield* streamAnthropic(modelId, prompt, systemPrompt);
   } else if (config.provider === 'openai') {
     yield* streamOpenAI(modelId, prompt, systemPrompt);
+  } else if (config.provider === 'google') {
+    yield* streamGemini(modelId, prompt, systemPrompt);
   } else {
     throw new Error(`Unsupported provider: ${config.provider}`);
   }

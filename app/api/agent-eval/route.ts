@@ -3,9 +3,29 @@ import { v4 as uuidv4 } from 'uuid';
 import { getAgentTask } from '@/lib/agent-eval/tasks';
 import { getModelConfig } from '@/lib/data/models';
 import { setAgentEvaluationConfig } from '@/lib/agent-eval/config-store';
+import { checkRateLimit, clientKeyFromHeaders } from '@/lib/rate-limit';
 import { AgentEvalMode, WeightPreset } from '@/types';
 
+// Rate limit: 5 evaluation kicks per IP per minute. Eval runs cost real money;
+// without this, the public endpoint is a DoS vector for the project's API balance.
+const RATE_LIMIT = { max: 5, windowMs: 60_000 };
+
 export async function POST(request: NextRequest) {
+  const key = clientKeyFromHeaders(request.headers);
+  const limit = checkRateLimit(key, RATE_LIMIT);
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { error: 'Rate limit exceeded. Try again shortly.' },
+      {
+        status: 429,
+        headers: {
+          'Retry-After': Math.ceil(limit.retryAfterMs / 1000).toString(),
+          'X-RateLimit-Remaining': '0',
+        },
+      },
+    );
+  }
+
   try {
     const body = await request.json();
     const { taskId, models, mode, weightPreset, customWeights } = body as {
