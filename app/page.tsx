@@ -28,7 +28,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="mx-auto flex max-w-container flex-col gap-8 px-6 py-8 md:gap-10 md:py-10 lg:min-h-[calc(100vh-8rem)] lg:justify-between lg:gap-0 lg:py-4">
+    <div className="mx-auto flex max-w-container flex-col gap-14 px-6 py-10 md:gap-16 md:py-12 lg:min-h-[calc(100vh-8rem)] lg:justify-between lg:gap-0 lg:py-4">
       {/* Hero */}
       <div>
         <h1 className="max-w-2xl text-3xl font-semibold tracking-tight text-black sm:text-4xl">
