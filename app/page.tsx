@@ -10,7 +10,7 @@ export default function Home() {
     {
       title: 'Context utilization is the biggest differentiator between agents.',
       description:
-        'The largest scoring gap isn\'t correctness: it\'s how well agents use the information they\'re given.',
+        'Agents are closer on correctness than on how well they use the context they\'re given.',
       href: '/insights#insight-1',
     },
     {

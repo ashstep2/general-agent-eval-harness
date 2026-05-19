@@ -367,7 +367,7 @@ export default function InsightsPage() {
         <InsightSection
           num={2}
           title="Same-family judge bias is real and measurable"
-          implication="Any eval using a single LLM judge inherits systematic bias. Cross-family judging is not optional; it's a correctness requirement. Build dual-judge pipelines by default."
+          implication="Any eval using a single LLM judge inherits systematic bias. Treat cross-family judging as a correctness requirement. Build dual-judge pipelines by default."
           evidenceRunIds={EVIDENCE.methodology}
         >
           <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-4">
