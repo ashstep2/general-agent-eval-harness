@@ -314,7 +314,7 @@ export default function InsightsPage() {
       </div>
 
       {/* ── TOC ── */}
-      <div className="mb-10 rounded-lg border border-gray-200 bg-white">
+      <div className="mb-6 rounded-lg border border-gray-200 bg-white">
         <div className="border-b border-gray-100 px-5 py-3">
           <h2 className="text-sm font-semibold text-black">10 insights from the data</h2>
         </div>
@@ -332,6 +332,43 @@ export default function InsightsPage() {
             </a>
           ))}
         </div>
+      </div>
+
+      {/* ── Methodology (collapsed, slimmed) ── */}
+      <div className="mb-10">
+        <button
+          onClick={() => setShowMethodology((prev) => !prev)}
+          className="flex items-center gap-2 text-sm font-medium uppercase tracking-wide text-gray-400 transition-colors hover:text-gray-600"
+        >
+          <span className={`inline-block text-xs transition-transform ${showMethodology ? 'rotate-90' : ''}`}>&#9654;</span>
+          Methodology notes
+        </button>
+
+        {showMethodology && (
+          <div className="mt-6 space-y-4">
+            <div className="text-sm leading-relaxed text-gray-600">
+              <p className="mb-3">
+                <strong>Setup:</strong> {TOTAL_RUNS} eval runs across 10 coding tasks (bug fixes, refactors, feature additions, code reviews).
+                Each task scored on 6 dimensions (context utilization, correctness, edge case handling, completeness, style adherence, explanation quality) on a 1-5 scale.
+                The {TOTAL_RUNS} runs split as: 10 fresh GPT-5.5 vs Opus 4.7 (single shot), 16 historical GPT-5.3 Codex vs Opus 4.6 (mixed modes), and 2 misc earlier runs.
+              </p>
+              <p className="mb-3">
+                <strong>Judges:</strong> Cross-provider dual judges (Claude Sonnet 4 and GPT-5.4) score every run independently.
+                (The historical baseline runs used Sonnet 4 + GPT-5.2.) Each judge evaluates both agents to control for prompt sensitivity.
+                The ranking score comes from the cross-family judge to avoid same-family bias.
+              </p>
+              <p className="mb-3">
+                <strong>Weight presets:</strong> Two presets encode different product philosophies (ship_fast: correctness-heavy; developer_trust: context-heavy).
+                See <a href="#insight-8" className="text-blue-600 underline">Insight 8</a> for details.
+              </p>
+              <p>
+                <strong>References:</strong>{' '}
+                <a href="https://arxiv.org/abs/2410.21819" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">ICLR 2025: LLM self-preference bias</a>{' · '}
+                <a href="https://arxiv.org/abs/2508.06709" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Spiliopoulou et al. 2025</a>
+              </p>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ── Divider ── */}
@@ -694,43 +731,6 @@ export default function InsightsPage() {
           </p>
         </InsightSection>
 
-      </div>
-
-      {/* ── Methodology (collapsed, slimmed) ── */}
-      <div className="mt-10 border-t border-gray-200 pt-8">
-        <button
-          onClick={() => setShowMethodology((prev) => !prev)}
-          className="flex items-center gap-2 text-sm font-medium uppercase tracking-wide text-gray-400 transition-colors hover:text-gray-600"
-        >
-          <span className={`inline-block text-xs transition-transform ${showMethodology ? 'rotate-90' : ''}`}>&#9654;</span>
-          Methodology notes
-        </button>
-
-        {showMethodology && (
-          <div className="mt-6 space-y-4">
-            <div className="text-sm leading-relaxed text-gray-600">
-              <p className="mb-3">
-                <strong>Setup:</strong> {TOTAL_RUNS} eval runs across 10 coding tasks (bug fixes, refactors, feature additions, code reviews).
-                Each task scored on 6 dimensions (context utilization, correctness, edge case handling, completeness, style adherence, explanation quality) on a 1-5 scale.
-                The {TOTAL_RUNS} runs split as: 10 fresh GPT-5.5 vs Opus 4.7 (single shot), 16 historical GPT-5.3 Codex vs Opus 4.6 (mixed modes), and 2 misc earlier runs.
-              </p>
-              <p className="mb-3">
-                <strong>Judges:</strong> Cross-provider dual judges (Claude Sonnet 4 and GPT-5.4) score every run independently.
-                (The historical baseline runs used Sonnet 4 + GPT-5.2.) Each judge evaluates both agents to control for prompt sensitivity.
-                The ranking score comes from the cross-family judge to avoid same-family bias.
-              </p>
-              <p className="mb-3">
-                <strong>Weight presets:</strong> Two presets encode different product philosophies (ship_fast: correctness-heavy; developer_trust: context-heavy).
-                See <a href="#insight-8" className="text-blue-600 underline">Insight 8</a> for details.
-              </p>
-              <p>
-                <strong>References:</strong>{' '}
-                <a href="https://arxiv.org/abs/2410.21819" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">ICLR 2025: LLM self-preference bias</a>{' · '}
-                <a href="https://arxiv.org/abs/2508.06709" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Spiliopoulou et al. 2025</a>
-              </p>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* CTA */}
