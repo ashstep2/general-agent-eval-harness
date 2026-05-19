@@ -10,7 +10,7 @@ export default function Home() {
     {
       title: 'Context utilization is the biggest differentiator between agents.',
       description:
-        'The largest scoring gap isn\'t correctness — it\'s how well agents use the information they\'re given.',
+        'The largest scoring gap isn\'t correctness: it\'s how well agents use the information they\'re given.',
       href: '/insights#insight-1',
     },
     {
@@ -20,7 +20,7 @@ export default function Home() {
       href: '/insights#insight-3',
     },
     {
-      title: 'Weight presets change winners — philosophy is a design variable.',
+      title: 'Weight presets change winners: philosophy is a design variable.',
       description:
         'How you weight dimensions determines which agent "wins." The eval framework makes this trade-off explicit.',
       href: '/insights#insight-8',
@@ -35,7 +35,7 @@ export default function Home() {
           Coding Agent Eval Harness: Which coding agent should we trust to ship code?
         </h1>
         <p className="mt-3 max-w-xl text-base text-gray-500">
-          30 eval runs, 10 coding tasks, 6 dimensions, 2 cross-provider judges: GPT-5.5 vs Claude Opus 4.7 (12 fresh runs) plus the historical Codex / Opus-4.6 baseline (16 runs) — Opus 4.7 closed 39% of the gap; agent-loop value is now model-dependent.
+          30 eval runs, 10 coding tasks, 6 dimensions, 2 cross-provider judges: GPT-5.5 vs Claude Opus 4.7 (12 fresh runs) plus the historical Codex / Opus-4.6 baseline (16 runs). Opus 4.7 closed 39% of the gap; agent-loop value is now model-dependent.
         </p>
         <div className="mt-4 flex gap-4">
           <Button onClick={() => router.push('/insights')}>

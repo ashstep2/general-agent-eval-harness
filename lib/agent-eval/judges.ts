@@ -30,11 +30,11 @@ Dimensions to score (1-5):
 ${dimensionDescriptions}
 
 Scoring guidelines:
-- 5: Excellent — fully meets expectations
-- 4: Good — meets expectations with minor issues
-- 3: Acceptable — partial success
-- 2: Poor — significant issues
-- 1: Fail — does not meet expectations
+- 5: Excellent, fully meets expectations
+- 4: Good, meets expectations with minor issues
+- 3: Acceptable, partial success
+- 2: Poor, significant issues
+- 1: Fail, does not meet expectations
 
 Respond with JSON only:
 {

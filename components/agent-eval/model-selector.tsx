@@ -7,7 +7,7 @@ interface ModelSelectorProps {
   onChange: (models: string[]) => void;
 }
 
-/** CLI-type models (e.g. Codex) can only run locally — disable on deployed sites. */
+/** CLI-type models (e.g. Codex) can only run locally; disable on deployed sites. */
 function isCliDisabled(type?: 'api' | 'cli'): boolean {
   if (type !== 'cli') return false;
   if (typeof window === 'undefined') return false;

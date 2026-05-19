@@ -54,7 +54,7 @@ export function RunProgress({ progress, responses, modelIds }: RunProgressProps)
   const startTimeRef = useRef<number>(Date.now());
   const [elapsed, setElapsed] = useState(0);
 
-  // Elapsed stopwatch — runs independently of progress updates
+  // Elapsed stopwatch: runs independently of progress updates
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const isRunning = !!progress && progress.status !== 'complete';
 

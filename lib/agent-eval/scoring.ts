@@ -79,12 +79,12 @@ export function buildReasoningSummary(scores: AgentJudgeScore): string {
     parts.push(`Weaknesses: ${weaknesses.join(' | ')}`);
   }
   if (parts.length === 0) {
-    // All scores in the 3 range — middle-of-the-road
+    // All scores in the 3 range: middle-of-the-road
     const dims = scores.dimensionScores.map(
       (d) => `${d.dimension} (${d.score}/5)`
     );
     parts.push(`Mixed results across dimensions: ${dims.join(', ')}`);
   }
 
-  return parts.join(' — ');
+  return parts.join(' · ');
 }

@@ -1,6 +1,6 @@
 #!/usr/bin/env tsx
 /**
- * Batch eval runner — runs the agent eval pipeline directly (no SSE/UI) and
+ * Batch eval runner: runs the agent eval pipeline directly (no SSE/UI) and
  * writes results to outputs/runs/. Reads .env.local for API keys.
  *
  * Usage:
@@ -88,7 +88,7 @@ async function main() {
       }
 
       const ms = Date.now() - taskStart;
-      console.log(`✓ ${(ms / 1000).toFixed(1)}s — runId: ${runId?.slice(0, 8)}`);
+      console.log(`✓ ${(ms / 1000).toFixed(1)}s · runId: ${runId?.slice(0, 8)}`);
       if (runId) completedRunIds.push(runId);
     } catch (err) {
       failCount += 1;

@@ -6,7 +6,7 @@ import { randomUUID } from 'crypto';
 import { ModelResponse } from '@/types';
 
 const CODEX_BIN = 'codex';
-const TIMEOUT_MS = 300_000; // 5 minutes — CLI tasks can be slow
+const TIMEOUT_MS = 300_000; // 5 minutes, CLI tasks can be slow
 
 /** Check whether the codex binary is on PATH. */
 function codexExists(): Promise<boolean> {

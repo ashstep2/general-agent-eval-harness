@@ -120,7 +120,7 @@ Every model response is scored by two independent LLM judges:
 
 **Why two judges:** A single judge introduces systematic bias. An Anthropic judge might favor Anthropic outputs (self-preference or family bias).
 
-**Why these specific models:** The models *being evaluated* (Opus 4.7, GPT-5.5, Gemini 3.1 Pro, etc.) cannot judge their own outputs; no model can be both contestant and judge. Sonnet 4 is the strongest non-evaluated Anthropic model. GPT-5.4 is now a previous-gen model retained as the OpenAI judge — this actually gives it a cleaner role: it's no longer the OpenAI flagship being evaluated competitively, so it can serve as the OpenAI-side judge. GPT-5.4 still appears in the eval target list for longitudinal comparison; when it's the subject of a run, its cross-family score (from Sonnet) drives the ranking.
+**Why these specific models:** The models *being evaluated* (Opus 4.7, GPT-5.5, Gemini 3.1 Pro, etc.) cannot judge their own outputs; no model can be both contestant and judge. Sonnet 4 is the strongest non-evaluated Anthropic model. GPT-5.4 is now a previous-gen model retained as the OpenAI judge; this actually gives it a cleaner role: it's no longer the OpenAI flagship being evaluated competitively, so it can serve as the OpenAI-side judge. GPT-5.4 still appears in the eval target list for longitudinal comparison; when it's the subject of a run, its cross-family score (from Sonnet) drives the ranking.
 
 ### 2. Cross-family scoring determines the winner
 
@@ -253,13 +253,13 @@ agent-eval-harness/
 
 | Model | ID | Provider | Role |
 |-------|-----|----------|------|
-| GPT-5.5 | `gpt-5.5` | OpenAI | Evaluation target — current flagship |
+| GPT-5.5 | `gpt-5.5` | OpenAI | Evaluation target, current flagship |
 | GPT-5.4 | `gpt-5.4` | OpenAI | Secondary judge + previous-gen target |
 | GPT-5.3 Codex | `gpt-5.3-codex` | OpenAI | Evaluation target (via CLI) |
 | GPT-5.2 | `gpt-5.2` | OpenAI | Evaluation target |
 | GPT-5 Mini | `gpt-5-mini` | OpenAI | Evaluation target |
 | GPT-5 Nano | `gpt-5-nano` | OpenAI | Evaluation target |
-| Claude Opus 4.7 | `claude-opus-4-7` | Anthropic | Evaluation target — current flagship |
+| Claude Opus 4.7 | `claude-opus-4-7` | Anthropic | Evaluation target, current flagship |
 | Claude Opus 4.6 | `claude-opus-4-6` | Anthropic | Previous-gen target |
 | Claude Sonnet 4.6 | `claude-sonnet-4-6` | Anthropic | Evaluation target |
 | Claude Opus 4.5 | `claude-opus-4-5-20251101` | Anthropic | Evaluation target |

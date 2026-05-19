@@ -46,7 +46,7 @@ interface AgentEvalState {
   recentEvaluations: AgentEvaluationSummary[];
   runsLoaded: boolean;
 
-  // Actions — selection
+  // Actions: selection
   setTask: (taskId: string | null) => void;
   setModels: (models: string[]) => void;
   setMode: (mode: AgentEvalMode) => void;
@@ -56,7 +56,7 @@ interface AgentEvalState {
   nextStep: () => void;
   prevStep: () => void;
 
-  // Actions — run lifecycle
+  // Actions: run lifecycle
   startEvaluation: () => void;
   updateProgress: (progress: ProgressUpdate) => void;
   addResponse: (modelId: string, text: string, stepId?: string) => void;
@@ -64,7 +64,7 @@ interface AgentEvalState {
   completeEvaluation: (results: AgentEvaluationResults) => void;
   failEvaluation: (message: string) => void;
 
-  // Actions — persistence
+  // Actions: persistence
   loadRuns: () => Promise<void>;
 }
 
@@ -144,7 +144,7 @@ export const useAgentEvalStore = create<AgentEvalState>((set, get) => ({
         runsLoaded: true,
       });
     } catch {
-      // Silently fail — pages will show empty state.
+      // Silently fail; pages will show empty state.
     }
   },
 }));

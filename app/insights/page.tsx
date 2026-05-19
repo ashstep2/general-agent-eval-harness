@@ -199,7 +199,7 @@ const INSIGHTS = [
   { num: 5, title: 'Judge agreement correlates with objectivity' },
   { num: 6, title: 'Edge case handling is the most volatile dimension' },
   { num: 7, title: 'Correctness has the most critical judge disagreements' },
-  { num: 8, title: 'Weight presets change winners — philosophy is a design variable' },
+  { num: 8, title: 'Weight presets change winners: philosophy is a design variable' },
   { num: 9, title: 'Silent refusal is an invisible failure mode' },
   { num: 10, title: 'Well-defined tasks produce stable results; ambiguous ones don\'t' },
 ];
@@ -358,7 +358,7 @@ export default function InsightsPage() {
           <p className="mb-2 text-sm leading-relaxed text-gray-600">
             On the new flagship matchup, the largest gap is now <strong>correctness</strong> (+{(GPT55_DIMS.correctness - OPUS47_DIMS.correctness).toFixed(2)}),
             with context utilization at +{NEW_CONTEXT_GAP.toFixed(2)} (down from +{HISTORICAL_CONTEXT_GAP.toFixed(2)} in the historical baseline).
-            Narrowest gap: <strong>explanation quality</strong> (+{NEW_EXPLANATION_GAP.toFixed(2)}) — Opus 4.7 nearly matched GPT-5.5 on explanation quality.
+            Narrowest gap: <strong>explanation quality</strong> (+{NEW_EXPLANATION_GAP.toFixed(2)}). Opus 4.7 nearly matched GPT-5.5 on explanation quality.
             GPT-5.5 still leads every dimension, but the advantage has compressed: context utilization is no longer the runaway differentiator it was a generation ago.
           </p>
         </InsightSection>
@@ -367,7 +367,7 @@ export default function InsightsPage() {
         <InsightSection
           num={2}
           title="Same-family judge bias is real and measurable"
-          implication="Any eval using a single LLM judge inherits systematic bias. Cross-family judging is not optional — it's a correctness requirement. Build dual-judge pipelines by default."
+          implication="Any eval using a single LLM judge inherits systematic bias. Cross-family judging is not optional; it's a correctness requirement. Build dual-judge pipelines by default."
           evidenceRunIds={EVIDENCE.methodology}
         >
           <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-4">
@@ -381,17 +381,17 @@ export default function InsightsPage() {
               <div>
                 <div className="text-[10px] font-medium uppercase tracking-widest text-gray-500">GPT-5.5 judged by GPT-5.4 (same family)</div>
                 <div className="mt-1 text-2xl font-bold text-gray-600">{BIAS_STATS.newGptBias.toFixed(2)}</div>
-                <div className="text-xs text-gray-500">vs cross-family judge — OpenAI judge is harsher on its own family</div>
+                <div className="text-xs text-gray-500">vs cross-family judge. OpenAI judge is harsher on its own family</div>
               </div>
             </div>
             <div className="mt-3 border-t border-amber-200 pt-2 text-xs text-amber-700">
               Historical baseline (Opus 4.6 / Codex, 16 runs): same-family Anthropic inflation was{' '}
-              +{BIAS_STATS.claudePrimaryMinusSecondary.toFixed(2)}pt — bias is shrinking but persistent.
+              +{BIAS_STATS.claudePrimaryMinusSecondary.toFixed(2)}pt. Bias is shrinking but persistent.
             </div>
           </div>
           <p className="mb-2 text-sm leading-relaxed text-gray-600">
             Even with new flagships, the same-family judge rated outputs higher than the cross-family judge on Anthropic models.
-            The OpenAI judge skews the other way — it&apos;s harsher on GPT outputs than the Anthropic judge is. The asymmetry is itself a finding:
+            The OpenAI judge skews the other way: it&apos;s harsher on GPT outputs than the Anthropic judge is. The asymmetry is itself a finding:
             self-preference is not symmetric across providers, but it&apos;s still real and still a reason to use cross-family judging.
             This matches published findings on LLM self-preference bias (<a href="https://arxiv.org/abs/2410.21819" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">ICLR 2025</a>, <a href="https://arxiv.org/abs/2508.06709" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Spiliopoulou et al. 2025</a>).
           </p>
@@ -401,10 +401,10 @@ export default function InsightsPage() {
         <InsightSection
           num={3}
           title="Agent loops help weak models, hurt strong ones"
-          implication="Loops are not free. Their value depends entirely on the gap between single-shot quality and ceiling. As base models improve, the ROI on loops shrinks toward zero — and on tasks where single-shot already hits ceiling, loops introduce regression. Treat loop architecture as a model-tier decision, not a default."
+          implication="Loops are not free. Their value depends entirely on the gap between single-shot quality and ceiling. As base models improve, the ROI on loops shrinks toward zero, and on tasks where single-shot already hits ceiling, loops introduce regression. Treat loop architecture as a model-tier decision, not a default."
           evidenceRunIds={[...EVIDENCE.finding2, 'e6501969-5f7f-49bd-b041-84fdc3ddf8d0']}
         >
-          {/* New flagship spike — Caching PR Review */}
+          {/* New flagship spike: Caching PR Review */}
           <div className="mb-4 rounded-lg border border-rose-200 bg-rose-50 p-4">
             <div className="mb-2 text-[10px] font-medium uppercase tracking-widest text-rose-700">New flagship spike · Caching PR Review (1 run, agent_loop)</div>
             <table className="w-full text-sm">
@@ -434,11 +434,11 @@ export default function InsightsPage() {
             <p className="mt-2 text-xs leading-relaxed text-rose-800">
               Both flagships ace single_shot at ceiling (5.00). With multi-step reasoning, <strong>Opus 4.7 holds ceiling</strong>;
               GPT-5.5 regresses by 0.35. Compared to GPT-5.3 Codex&apos;s historical <strong>+1.20</strong> boost on the same task,
-              the value of multi-step reasoning has collapsed — and is now <em>model-dependent</em>: Opus 4.7 is more robust to it than GPT-5.5.
+              the value of multi-step reasoning has collapsed, and is now <em>model-dependent</em>: Opus 4.7 is more robust to it than GPT-5.5.
             </p>
           </div>
 
-          {/* Methodology disclosure — bug found and fixed in agent_loop prompt threading */}
+          {/* Methodology disclosure: bug found and fixed in agent_loop prompt threading */}
           <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-4 text-xs leading-relaxed text-blue-900">
             <div className="mb-1 font-semibold uppercase tracking-widest text-blue-700">Methodology note</div>
             <p>
@@ -480,7 +480,7 @@ export default function InsightsPage() {
             On the historical Codex / Opus 4.6 generation, loops produced strong gains: caching PR review +{AGENT_LOOP_DELTAS[0].delta.toFixed(2)},
             refactor +{AGENT_LOOP_DELTAS[1].delta.toFixed(2)}, memory leak +{AGENT_LOOP_DELTAS[2].delta.toFixed(2)}.
             But on the new flagships, the same task that benefitted most from loops now <strong>regresses</strong> with them.
-            The single-shot ceiling has risen faster than the loop ceiling — there&apos;s less room left for the loop to help, and the extra reasoning steps occasionally introduce noise.
+            The single-shot ceiling has risen faster than the loop ceiling; there&apos;s less room left for the loop to help, and the extra reasoning steps occasionally introduce noise.
             <em> N=1 on the new flagship side; the direction is more important than the magnitude until more runs land.</em>
           </p>
         </InsightSection>
@@ -549,7 +549,7 @@ export default function InsightsPage() {
             </div>
           </div>
           <p className="text-sm leading-relaxed text-gray-600">
-            Objective dimensions (explanation quality, style adherence) see high agreement. Subjective ones (context utilization) see the most disagreement — exactly where the scoring gap is largest.
+            Objective dimensions (explanation quality, style adherence) see high agreement. Subjective ones (context utilization) see the most disagreement: exactly where the scoring gap is largest.
           </p>
         </InsightSection>
 
@@ -573,7 +573,7 @@ export default function InsightsPage() {
             </div>
           </div>
           <p className="text-sm leading-relaxed text-gray-600">
-            Edge case handling has a wider score range than any other dimension for both agents. A 2.0–5.0 spread means the &quot;average&quot; is misleading — task type determines edge case performance more than model choice.
+            Edge case handling has a wider score range than any other dimension for both agents. A 2.0–5.0 spread means the &quot;average&quot; is misleading; task type determines edge case performance more than model choice.
           </p>
         </InsightSection>
 
@@ -581,7 +581,7 @@ export default function InsightsPage() {
         <InsightSection
           num={7}
           title="Correctness has the most critical judge disagreements"
-          implication="When judges disagree on correctness, the stakes are highest — a false positive means shipping broken code. Surface correctness disagreements prominently and require human review when judges split."
+          implication="When judges disagree on correctness, the stakes are highest: a false positive means shipping broken code. Surface correctness disagreements prominently and require human review when judges split."
           evidenceRunIds={EVIDENCE.insight7}
         >
           <div className="mb-4 rounded-lg border border-red-100 bg-red-50 p-4">
@@ -609,8 +609,8 @@ export default function InsightsPage() {
         {/* Insight 8: Weight presets */}
         <InsightSection
           num={8}
-          title="Weight presets change winners — philosophy is a design variable"
-          implication="There is no single 'best' agent — it depends on what you value. Eval frameworks should make weight presets explicit and let teams encode their own product philosophy into scoring."
+          title="Weight presets change winners: philosophy is a design variable"
+          implication="There is no single 'best' agent; it depends on what you value. Eval frameworks should make weight presets explicit and let teams encode their own product philosophy into scoring."
           evidenceRunIds={EVIDENCE.insight8}
         >
           <div className="mb-4 grid grid-cols-2 gap-3">
@@ -640,7 +640,7 @@ export default function InsightsPage() {
             </div>
           </div>
           <p className="text-sm leading-relaxed text-gray-600">
-            Ship_fast concentrates weight on correctness and completeness — both high-agreement dimensions. Developer_trust distributes weight across context and edge cases — the most contentious dimensions. The preset itself encodes a product philosophy.
+            Ship_fast concentrates weight on correctness and completeness (both high-agreement dimensions). Developer_trust distributes weight across context and edge cases (the most contentious dimensions). The preset itself encodes a product philosophy.
           </p>
         </InsightSection>
 
@@ -654,7 +654,7 @@ export default function InsightsPage() {
           <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-4">
             <div className="text-sm text-amber-800">
               <strong>Pattern observed:</strong> In agent loop runs, one agent occasionally acknowledged a requirement in its reasoning
-              but omitted it from the final output — no error, no explanation. The judge scored the output
+              but omitted it from the final output: no error, no explanation. The judge scored the output
               based on what was present, missing the gap entirely.
             </div>
           </div>
@@ -686,7 +686,7 @@ export default function InsightsPage() {
           </div>
           <p className="text-sm leading-relaxed text-gray-600">
             Tasks with concrete acceptance criteria (fix this bug, optimize this query) show tight score distributions.
-            Open-ended tasks (refactor this, add this feature) show 4x higher variance — making single-run comparisons unreliable.
+            Open-ended tasks (refactor this, add this feature) show 4x higher variance, making single-run comparisons unreliable.
           </p>
         </InsightSection>
 
@@ -711,7 +711,7 @@ export default function InsightsPage() {
                 The {TOTAL_RUNS} runs split as: 10 fresh GPT-5.5 vs Opus 4.7 (single shot), 16 historical GPT-5.3 Codex vs Opus 4.6 (mixed modes), and 2 misc earlier runs.
               </p>
               <p className="mb-3">
-                <strong>Judges:</strong> Cross-provider dual judges — Claude Sonnet 4 and GPT-5.4 score every run independently.
+                <strong>Judges:</strong> Cross-provider dual judges (Claude Sonnet 4 and GPT-5.4) score every run independently.
                 (The historical baseline runs used Sonnet 4 + GPT-5.2.) Each judge evaluates both agents to control for prompt sensitivity.
                 The ranking score comes from the cross-family judge to avoid same-family bias.
               </p>
@@ -721,7 +721,7 @@ export default function InsightsPage() {
               </p>
               <p>
                 <strong>References:</strong>{' '}
-                <a href="https://arxiv.org/abs/2410.21819" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">ICLR 2025 — LLM self-preference bias</a>{' · '}
+                <a href="https://arxiv.org/abs/2410.21819" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">ICLR 2025: LLM self-preference bias</a>{' · '}
                 <a href="https://arxiv.org/abs/2508.06709" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Spiliopoulou et al. 2025</a>
               </p>
             </div>

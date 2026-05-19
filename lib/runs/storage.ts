@@ -13,7 +13,7 @@ const BLOB_PREFIX = 'runs/';
  *     the production path on Vercel (where the local filesystem is read-only).
  *   - Filesystem is used in local dev (no Blob token) and as a fallback.
  *   - If neither works, saveRun reports it via SaveResult instead of swallowing
- *     the failure — so the runner can surface "your run wasn't persisted" to
+ *     the failure, so the runner can surface "your run wasn't persisted" to
  *     the user instead of silently losing data.
  */
 
@@ -39,7 +39,7 @@ export interface SaveResult {
 
 /**
  * Save an evaluation run. Returns metadata about where it landed (or didn't).
- * Never throws — failure modes are surfaced via SaveResult so callers can tell
+ * Never throws; failure modes are surfaced via SaveResult so callers can tell
  * the user when persistence didn't happen.
  */
 export async function saveRun(run: AgentEvaluationResults): Promise<SaveResult> {
@@ -55,7 +55,7 @@ export async function saveRun(run: AgentEvaluationResults): Promise<SaveResult> 
     } catch (err) {
       const reason = err instanceof Error ? err.message : String(err);
       console.warn('[storage] Blob save failed:', reason);
-      // On Vercel, filesystem is read-only — no fallback worth attempting.
+      // On Vercel, filesystem is read-only; no fallback worth attempting.
       if (isVercelRuntime()) {
         return { persisted: false, backend: 'none', reason: `Blob save failed: ${reason}` };
       }

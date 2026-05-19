@@ -41,7 +41,7 @@ ${task.expectedBehavior}
  *   - review actually reviews the code from step 3
  *   - final integrates everything
  *
- * Without this, each step ran independently and only `final` saw any prior context —
+ * Without this, each step ran independently and only `final` saw any prior context,
  * which made the "agent loop" effectively 5 unrelated prompts. See git history.
  */
 export function buildStepPrompt(task: AgentTask, step: string, priorOutput?: string): string {

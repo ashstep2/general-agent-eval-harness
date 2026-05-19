@@ -529,7 +529,7 @@ export const AGENT_TASKS: AgentTask[] = [
     category: 'code-review',
     difficulty: 'hard',
     productQuestion:
-      'Can the agent prioritize — does it find the cache invalidation bug before nitpicking formatting?',
+      'Can the agent prioritize: does it find the cache invalidation bug before nitpicking formatting?',
     prompt:
       'Review the following PR diff. Identify the most critical issue(s) first. Provide a structured review with severity and reasoning.\n\nPR diff:\n```diff\n- export function invalidateUserCache(userId: string) {\n-   invalidateCache(`user:${userId}:`);\n- }\n+ export function invalidateUserCache(userId: string) {\n+   invalidateCache(`user:${userId}`);\n+ }\n\n- export function invalidatePostsCache() {\n-   invalidateCache(\'posts:\');\n- }\n+ export function invalidatePostsCache() {\n+   invalidateCache(\'post:\');\n+ }\n```',
     expectedBehavior:
