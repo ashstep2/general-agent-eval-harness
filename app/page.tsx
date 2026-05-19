@@ -28,7 +28,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="mx-auto flex h-[calc(100vh-8rem)] max-w-container flex-col justify-between px-6 py-4">
+    <div className="mx-auto flex max-w-container flex-col gap-8 px-6 py-8 md:gap-10 md:py-10 lg:min-h-[calc(100vh-8rem)] lg:justify-between lg:gap-0 lg:py-4">
       {/* Hero */}
       <div>
         <h1 className="max-w-2xl text-3xl font-semibold tracking-tight text-black sm:text-4xl">
@@ -52,7 +52,7 @@ export default function Home() {
 
       {/* Stats */}
       <section>
-        <div className="grid gap-px overflow-hidden rounded-lg border border-gray-200 bg-gray-200 sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-gray-200 bg-gray-200 sm:grid-cols-4">
           {[
             { stat: '30', label: 'Eval runs', detail: '12 fresh 5.5/4.7 + 16 baseline + 2 misc' },
             { stat: '10', label: 'Coding tasks', detail: undefined },

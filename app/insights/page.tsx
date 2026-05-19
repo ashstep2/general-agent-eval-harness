@@ -299,7 +299,7 @@ export default function InsightsPage() {
       </div>
 
       {/* Scoreboard */}
-      <div className="mb-10 grid grid-cols-4 gap-px overflow-hidden rounded-lg border border-gray-200 bg-gray-200">
+      <div className="mb-10 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-gray-200 bg-gray-200 sm:grid-cols-4">
         {[
           { stat: TOTAL_RUNS, label: 'Eval runs' },
           { stat: 10, label: 'Coding tasks' },
@@ -372,7 +372,7 @@ export default function InsightsPage() {
         >
           <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-4">
             <div className="mb-3 text-[10px] font-medium uppercase tracking-widest text-amber-700">New flagship matchup (10 runs)</div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <div className="text-[10px] font-medium uppercase tracking-widest text-amber-600">Opus 4.7 judged by Sonnet (same family)</div>
                 <div className="mt-1 text-2xl font-bold text-amber-700">+{BIAS_STATS.newClaudeBias.toFixed(2)}</div>
@@ -407,30 +407,32 @@ export default function InsightsPage() {
           {/* New flagship spike: Caching PR Review */}
           <div className="mb-4 rounded-lg border border-rose-200 bg-rose-50 p-4">
             <div className="mb-2 text-[10px] font-medium uppercase tracking-widest text-rose-700">New flagship spike · Caching PR Review (1 run, agent_loop)</div>
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-rose-200">
-                  <th className="py-1.5 text-left font-medium text-rose-800">Model</th>
-                  <th className="py-1.5 text-right font-medium text-rose-800">Single-shot</th>
-                  <th className="py-1.5 text-right font-medium text-rose-800">Agent loop</th>
-                  <th className="py-1.5 text-right font-medium text-rose-800">Delta</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="border-b border-rose-100">
-                  <td className="py-1.5 text-rose-900">GPT-5.5</td>
-                  <td className="py-1.5 text-right font-mono text-rose-700">5.00</td>
-                  <td className="py-1.5 text-right font-mono text-rose-700">4.65</td>
-                  <td className="py-1.5 text-right font-mono font-semibold text-rose-700">−0.35</td>
-                </tr>
-                <tr>
-                  <td className="py-1.5 text-rose-900">Claude Opus 4.7</td>
-                  <td className="py-1.5 text-right font-mono text-rose-700">5.00</td>
-                  <td className="py-1.5 text-right font-mono text-rose-700">5.00</td>
-                  <td className="py-1.5 text-right font-mono font-semibold text-emerald-700">0.00</td>
-                </tr>
-              </tbody>
-            </table>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[24rem] text-sm">
+                <thead>
+                  <tr className="border-b border-rose-200">
+                    <th className="py-1.5 text-left font-medium text-rose-800">Model</th>
+                    <th className="py-1.5 text-right font-medium text-rose-800">Single-shot</th>
+                    <th className="py-1.5 text-right font-medium text-rose-800">Agent loop</th>
+                    <th className="py-1.5 text-right font-medium text-rose-800">Delta</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-b border-rose-100">
+                    <td className="py-1.5 text-rose-900">GPT-5.5</td>
+                    <td className="py-1.5 text-right font-mono text-rose-700">5.00</td>
+                    <td className="py-1.5 text-right font-mono text-rose-700">4.65</td>
+                    <td className="py-1.5 text-right font-mono font-semibold text-rose-700">−0.35</td>
+                  </tr>
+                  <tr>
+                    <td className="py-1.5 text-rose-900">Claude Opus 4.7</td>
+                    <td className="py-1.5 text-right font-mono text-rose-700">5.00</td>
+                    <td className="py-1.5 text-right font-mono text-rose-700">5.00</td>
+                    <td className="py-1.5 text-right font-mono font-semibold text-emerald-700">0.00</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
             <p className="mt-2 text-xs leading-relaxed text-rose-800">
               Both flagships ace single_shot at ceiling (5.00). With multi-step reasoning, <strong>Opus 4.7 holds ceiling</strong>;
               GPT-5.5 regresses by 0.35. Compared to GPT-5.3 Codex&apos;s historical <strong>+1.20</strong> boost on the same task,
@@ -455,7 +457,8 @@ export default function InsightsPage() {
             <div className="bg-gray-50 px-4 py-1.5 text-[10px] font-medium uppercase tracking-widest text-gray-500">
               Historical baseline · GPT-5.3 Codex (3 runs)
             </div>
-            <table className="w-full text-sm">
+            <div className="overflow-x-auto">
+            <table className="w-full min-w-[32rem] text-sm">
               <thead>
                 <tr className="border-b border-gray-100 bg-gray-50">
                   <th className="px-4 py-2 text-left font-medium text-gray-600">Task</th>
@@ -475,6 +478,7 @@ export default function InsightsPage() {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
           <p className="mb-2 text-sm leading-relaxed text-gray-600">
             On the historical Codex / Opus 4.6 generation, loops produced strong gains: caching PR review +{AGENT_LOOP_DELTAS[0].delta.toFixed(2)},
@@ -492,7 +496,7 @@ export default function InsightsPage() {
           implication="Two product archetypes emerge: the pair programmer (explains what to do, human verifies) and the delegated agent (does it correctly, minimal explanation needed). For autonomous delegation, correctness matters more than explanation."
           evidenceRunIds={EVIDENCE.finding3}
         >
-          <div className="mb-3 grid grid-cols-2 gap-3">
+          <div className="mb-3 grid gap-3 sm:grid-cols-2">
             <div className="rounded-md border border-gray-200 bg-white p-4">
               <div className="mb-2 text-[10px] font-medium uppercase tracking-widest text-gray-400">
                 Pair Programmer Archetype
@@ -560,7 +564,7 @@ export default function InsightsPage() {
           implication="Edge case handling scores are noisy enough that a single eval run can't be trusted. Run multiple evaluations and report variance, not just means. Flag high-variance dimensions in the UI."
           evidenceRunIds={EVIDENCE.insight6}
         >
-          <div className="mb-4 grid grid-cols-2 gap-3">
+          <div className="mb-4 grid gap-3 sm:grid-cols-2">
             <div className="rounded-md border border-gray-200 bg-white p-4 text-center">
               <div className="text-[10px] font-medium uppercase tracking-widest text-gray-400">Codex edge case range</div>
               <div className="mt-2 text-2xl font-bold text-gray-800">{EDGE_CASE_RANGE.codexMin.toFixed(1)} – {EDGE_CASE_RANGE.codexMax.toFixed(1)}</div>
@@ -585,7 +589,7 @@ export default function InsightsPage() {
           evidenceRunIds={EVIDENCE.insight7}
         >
           <div className="mb-4 rounded-lg border border-red-100 bg-red-50 p-4">
-            <div className="grid grid-cols-3 gap-4 text-center">
+            <div className="grid grid-cols-1 gap-4 text-center sm:grid-cols-3">
               <div>
                 <div className="text-[10px] font-medium uppercase tracking-widest text-red-400">Same-family score</div>
                 <div className="mt-1 text-2xl font-bold text-red-700">{CORRECTNESS_DISAGREEMENTS.sameFamily.toFixed(1)}</div>
@@ -613,7 +617,7 @@ export default function InsightsPage() {
           implication="There is no single 'best' agent; it depends on what you value. Eval frameworks should make weight presets explicit and let teams encode their own product philosophy into scoring."
           evidenceRunIds={EVIDENCE.insight8}
         >
-          <div className="mb-4 grid grid-cols-2 gap-3">
+          <div className="mb-4 grid gap-3 sm:grid-cols-2">
             <div className="rounded-md border border-gray-200 bg-white p-4">
               <div className="mb-2 text-[10px] font-medium uppercase tracking-widest text-gray-400">Ship Fast Preset</div>
               <div className="space-y-1 text-xs text-gray-600">
@@ -670,7 +674,7 @@ export default function InsightsPage() {
           implication="Eval reliability depends more on task specification quality than on model capability. Invest in task design: clear acceptance criteria, concrete inputs/outputs, and explicit edge case requirements produce reproducible results."
           evidenceRunIds={EVIDENCE.insight10}
         >
-          <div className="mb-4 grid grid-cols-2 gap-3">
+          <div className="mb-4 grid gap-3 sm:grid-cols-2">
             <div className="rounded-md border border-emerald-200 bg-emerald-50 p-4 text-center">
               <div className="text-[10px] font-medium uppercase tracking-widest text-emerald-600">Well-defined tasks</div>
               <div className="mt-2 text-2xl font-bold text-emerald-700">±0.3</div>

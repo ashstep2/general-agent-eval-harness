@@ -46,7 +46,7 @@ function AgentEvalResultsContent() {
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-12">
-      <div className="mb-8 flex items-start justify-between">
+      <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
         <div>
           <button
             onClick={() => router.push('/agent-eval')}

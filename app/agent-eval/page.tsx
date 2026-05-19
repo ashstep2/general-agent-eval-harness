@@ -45,8 +45,8 @@ export default function AgentEvalDashboard() {
           See recent evaluation results
         </button>
         {showRecent && (
-          <div className="mt-4 overflow-hidden rounded-lg border border-gray-200">
-            <table className="w-full">
+          <div className="mt-4 overflow-x-auto rounded-lg border border-gray-200">
+            <table className="w-full min-w-[40rem]">
               <thead>
                 <tr className="border-b border-gray-100 bg-gray-50">
                   <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">Task</th>
